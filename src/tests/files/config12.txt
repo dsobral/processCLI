@@ -1,0 +1,38 @@
+
+##### IMPORTANT
+## avoid spaces in the description of the identities
+
+### number of threads available to run the files
+### don't put more than the processors available in your machine
+## IMPORTANT, the command line can have threadings to, so need to limit the number of threadings here.
+processors=2
+
+### global path where the data is going to be saved
+output_path=outData
+
+#######################
+## extensions to look. It can be empty. If empty look for the regular fastq files out by illumina
+## You can put value only on "extension_1=" like ".txt". It's going to process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
+## You you want to activate both variables, FILE1 and FILE2, you can put like:
+##  "extension_1=_1P.fastq" and "extension_2=_2P.fastq" 
+extension_1=.txt
+extension_2=
+
+### if all fasta/fastq files are expecting to be paired
+##
+expecting_all_paired_files=False
+
+### command line with variables
+## 		VARIABLES
+##		1)	FILE1					-> reads_R1.fastq.gz 
+##		2)	FILE2					-> reads_R2.fastq.gz
+##		3)	PREFIX_FILES_OUT		-> reads
+##		4)	OUT_FOLDER			-> outData/reads/....
+cmd=bash tests/cmd/process.sh --outdir OUT_FOLDER --prefix PREFIX_FILES_OUT --file1 FILE1
+cmd=snippy --cpus 10 --outdir output_folder --prefix prefix_output_files --ref reference.gbk --R1 reads_R1.fastq.gz --R2 reads_R2.fastq.gz
+
+
+## description of several files that lie in a directory
+### read all files and try to find pairs of files  
+InputDirectories
+files/dir_with_files_5

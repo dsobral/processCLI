@@ -1,0 +1,57 @@
+
+##### IMPORTANT
+## avoid spaces in the description of the identities
+
+### number of threads available to run the files
+### don't put more than the processors available in your machine
+## IMPORTANT, the command line can have threadings to, so need to limit the number of threadings here.
+processors=2
+
+#######################
+## extensions to look. It can be empty. If empty look for the regular fastq files out by illumina
+## You can put value only on "extension_1=" like ".txt". It's going to process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
+## You you want to activate both variables, FILE1 and FILE2, you can put like:
+##  "extension_1=_1P.fastq" and "extension_2=_2P.fastq" 
+extension_1=
+extension_2=
+
+### If true need human confirmation after collecting all the data
+### Set this to false if is used in a pipeline
+confirm_after_collect_data=false
+
+### global path where the data is going to be saved
+output_path=fastqc
+
+## If the file/s are inside a folder data/GSE96700_GSM2538511/Neocortex_Diestrus2.fa.gz
+##	the name is going to be replaced by  '<output_path>/GSE96700_GSM2538511/GSE96700_GSM2538511.fa.gz
+###  replace files names by folder name
+###  default is FALSE
+replace_file_name_by_folder_name=True
+
+
+### if all fasta/fastq files are expecting to be paired
+##
+expecting_all_paired_files=False
+
+
+### command line with variables
+##  	'cmd' can have three variations, first run 'cmd', then 'cmd_one_file' and for last 'cmd_two_files'
+##		At least one 'cmd' need to have something to run.
+##			1) cmd -> is a regular command, it's going to run with one or two 'fasta/fastq' files
+##			2) cmd_one_file -> only run when has one 'fasta/fastq' file
+##			3) cmd_two_files -> only run when has two 'fasta/fastq' files
+##
+## 		VARIABLES
+##		1)	FILE1					-> reads_R1.fastq.gz 
+##		2)	FILE2					-> reads_R2.fastq.gz
+##		3)	PREFIX_FILES_OUT		-> reads
+##		4)	OUT_FOLDER			-> outData/reads/....
+cmd_one_file=echo FILE1
+cmd_two_files=echo FILE1 FILE2 PREFIX_FILES_OUT OUT_FOLDER
+cmd=echo FILE1 FILE2 xpto PREFIX_FILES_OUT OUT_FOLDER
+
+
+## description of several files that lie in a directory
+### read all files and try to find pairs of files  
+InputDirectories
+/home/projects/pipeline_quality/original_data/*

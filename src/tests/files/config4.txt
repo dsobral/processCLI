@@ -1,0 +1,26 @@
+
+##### IMPORTANT
+## avoid spaces in the description of the identities
+
+### number of threads available to run the files
+### don't put more than the processors available in your machine
+## IMPORTANT, the command line can have threadings to, so need to limit the number of threadings here.
+processors=2
+
+### global path where the data is going to be saved
+output_path=outData
+
+### command line with variables
+## 		VARIABLES
+##		1)	FILE1					-> reads_R1.fastq.gz 
+##		2)	FILE2					-> reads_R2.fastq.gz
+##		3)	PREFIX_FILES_OUT		-> reads
+##		4)	OUT_FOLDER			-> outData/reads/....
+cmd=bash tests/cmd/process.sh OUT_FOLDER PREFIX_FILES_OUT FILE1 FILE2
+#cmd=snippy --cpus 10 --outdir output_folder --prefix prefix_output_files --ref reference.gbk --R1 reads_R1.fastq.gz --R2 reads_R2.fastq.gz
+
+
+## description of several files that lie in a directory
+### read all files and try to find pairs of files  
+InputDirectories
+files/dir_with_files_3
