@@ -4,7 +4,7 @@ Created on Oct 15, 2016
 @author: mmp
 '''
 import unittest
-from src.constants.constants import Constants 
+from constants.constants import Constants 
 
 class Test(unittest.TestCase):
 

@@ -6,7 +6,7 @@ Created on Oct 12, 2016
 
 import os, sys, re, glob
 from os import listdir
-from src.constants.utils import Util
+from constants.utils import Util
 from os.path import isfile, join
 
 class ConfigFile(object):
@@ -23,12 +23,13 @@ class ConfigFile(object):
 	CONFIG_FILE_cmd= "cmd="
 	CONFIG_FILE_cmd_one_file= "cmd_one_file="
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
-	CONFIG_FILE_replace_file_name_by_folder_name = "replace_file_name_by_folder_name="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
 	CONFIG_EXTENTION_TO_LOOK = "extension="
 
 	VARIABLE_NAMES_FILE1 = "FILE1"
+	VARIABLE_NAMES_FILE1_CHANGED = "FILE1_CHANGED"
 	VARIABLE_NAMES_FILE2 = "FILE2"
+	VARIABLE_NAMES_FILE2_CHANGED = "FILE2_CHANGED"
 	VARIABLE_NAMES_PREFIX_FILES_OUT = "PREFIX_FILES_OUT"
 	VARIABLE_NAMES_OUT_FOLDER = "OUT_FOLDER"
 	
@@ -46,7 +47,6 @@ class ConfigFile(object):
 		self.extension_to_look_1 = ""			## extension to look
 		self.extension_to_look_2 = ""			## extension to look
 		self.confirm_after_collect_data = True
-		self.replace_file_name_by_folder_name = False
 		self.expecting_all_paired_files = True
 		self.util = Util()
 		## print "Error: the file '" + file_name + "' doesn't have order number. Must be like <prefix>_r<number>_<extension>"
@@ -62,7 +62,6 @@ class ConfigFile(object):
 	def get_vect_cmd_one_file(self): return self.vec_cmds_one_file
 	def get_vect_cmd_two_files(self): return self.vec_cmds_two_files
 	def get_confirm_after_collect_data(self): return self.confirm_after_collect_data
-	def get_replace_file_name_by_folder_name(self): return self.replace_file_name_by_folder_name
 
 	def get_vect_files_not_to_process(self): return self.vect_files_not_to_process
 	def clean_vect_files_not_to_process(self): self.vect_files_not_to_process = []
@@ -123,13 +122,6 @@ class ConfigFile(object):
 					if (sz_temp == "false" or sz_temp == "f" or sz_temp == "0"): self.confirm_after_collect_data = False
 				continue
 			
-			## replace_file_name_by_folder_name
-			if (sz_temp.lower().find(self.CONFIG_FILE_replace_file_name_by_folder_name.lower()) >= 0):
-				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_replace_file_name_by_folder_name.lower()) + len(self.CONFIG_FILE_replace_file_name_by_folder_name):]) > 0):
-					sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_replace_file_name_by_folder_name.lower()) + len(self.CONFIG_FILE_replace_file_name_by_folder_name):].split()[0].lower()
-					if (sz_temp == "false" or sz_temp == "f" or sz_temp == "0"): self.replace_file_name_by_folder_name = False
-				continue
-			
 			## expecting_all_paired_files
 			if (sz_temp.lower().find(self.CONFIG_FILE_expecting_all_paired_files.lower()) >= 0):
 				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):]) > 0):
@@ -174,7 +166,8 @@ class ConfigFile(object):
 				for n_index in vect_index_empty: self.vect_files_to_process.pop(n_index)
 		
 		self.__test_empty_patameter__(self.output_path, "Output Path")
-		if (len(self.vec_cmds) == 0): raise Exception("Error: the value 'Command line to process cmd=' can't be empty")
+		if ((len(self.vec_cmds) + len(self.vec_cmds_one_file) + len(self.vec_cmds_two_files)) == 0): 
+			raise Exception("Error: the value 'Command line to process cmd=' can't be empty")
 		if (not b_start_dir_file_description): raise Exception("Must have the 'InputDirectory' tag followed by directories that contain files")
 		if (len(self.vect_files_to_process) == 0): 
 			raise Exception("Must have files to process. Insert directories after the tag 'InputDirectory' in the config file")
@@ -247,8 +240,7 @@ class ConfigFile(object):
 		for key_dir in dict_join_files:
 			vect_files_result.append(FileToProcess(dir_file_to_files + "/" + dict_join_files[key_dir][0],\
 										dir_file_to_files + "/" + dict_join_files[key_dir][1] if len(dict_join_files[key_dir]) > 1 else "",\
-										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2,\
-										self.replace_file_name_by_folder_name))
+										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2))
 			index_file_to_process += 1
 		return (vect_files_result, index_file_to_process)
 
@@ -410,7 +402,7 @@ class FileToProcess(object):
 	'''
 
 
-	def __init__(self, file1, file2, out_prefix, index_file_to_process, extension_1, extension_2, replace_file_name_by_folder_name):
+	def __init__(self, file1, file2, out_prefix, index_file_to_process, extension_1, extension_2):
 		'''
 		Constructor
 		'''
@@ -420,12 +412,14 @@ class FileToProcess(object):
 		self.index_file_to_process = index_file_to_process
 		self.extension_1 = extension_1
 		self.extension_2 = extension_2
-		self.replace_file_name_by_folder_name = replace_file_name_by_folder_name
 		
-		self.__set_order_files__()
+		self.__set_order_files()
+
 	#### get parameters		
 	def get_file1(self): return self.file1
 	def get_file2(self): return self.file2
+	def get_file1_changed(self): return self.__get_change_name(self.file1)
+	def get_file2_changed(self): return self.__get_change_name(self.file2)
 	def get_prefix_file_out(self): return self.out_prefix
 	def get_index_file_to_process(self): return self.index_file_to_process
 	def get_file_name(self):
@@ -433,12 +427,23 @@ class FileToProcess(object):
 		if (len(self.file2) > 0): return self.file2
 		return ""
 	
+	def __get_change_name(self, file_name):
+		"""
+		change name of the file for the name of the previous directory name
+		ex: sds/second/xpoy.fasta.gz -> sds/second/second.fasta.gz
+		"""
+		lst_data = file_name.split('/')
+		if (len(lst_data) > 1):
+			return "/".join(lst_data[:-2]) + "/" + lst_data[-2] + "/" + lst_data[-1].replace(self.out_prefix, lst_data[-2])
+		return file_name
+		
+		
 	def has_two_files(self):
 		if (len(self.file1) > 0 and len(self.file2) > 0): return True
 		return False
 
 	### has always one file
-	def __set_order_files__(self):
+	def __set_order_files(self):
 # 		if (len(self.extension_1) > 0 and len(self.extension_2) > 0):
 # 			if (self.file1.find(self.extension_1) != len(self.file1) - len(self.extension_1)):
 # 				temp = self.file1
@@ -462,12 +467,13 @@ class FileToProcess(object):
 		
 	### get command line with replaced tags	
 	def get_command_line(self, output_path, cmd):
-		cmd_out = cmd.replace(ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
-		if (len(self.file2) > 0): cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
+		cmd_out = cmd.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, self.get_file1_changed())
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
+		if (len(self.file2) > 0): 
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, self.get_file1_changed())
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
 
-		if (self.replace_file_name_by_folder_name):
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, os.path.basename(os.path.dirname(self.file1)))
-		else: cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, self.out_prefix)
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, self.out_prefix)
 				
 		### create output path
 		full_path = os.path.dirname(self.file1)

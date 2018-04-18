@@ -4,7 +4,7 @@ Created on Oct 14, 2016
 @author: mmp
 '''
 import unittest, os
-from src.config.configFile import ConfigFile
+from config.configFile import ConfigFile
 
 class Test(unittest.TestCase):
 
@@ -314,6 +314,54 @@ class Test(unittest.TestCase):
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_prefix_file_out(), "Xpto31_A_L001")
 		self.assertEqual(configFile.has_all_pair_files(), True)
 		
+	def testFile16(self):
+		configFile = ConfigFile()
+		
+		## set environment variable
+		os.environ['dir_with_files_variable'] = "dir_with_files_8"
+		
+		configFile.read_file("files/config16.txt")
+		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 0)
+		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
+		if (configFile.get_vect_files_to_process()[0].get_prefix_file_out() == "Xpto3_A_L001"):
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file1(), "files/dir_with_files_8/Xpto3_A_L001_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "files/dir_with_files_8/Xpto3_A_L001_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_prefix_file_out(), "Xpto3_A_L001")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file1(), "files/dir_with_files_8/Xpto31_A_L001_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file1_changed(), "files/dir_with_files_8/dir_with_files_8_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2(), "files/dir_with_files_8/Xpto31_A_L001_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2_changed(), "files/dir_with_files_8/dir_with_files_8_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_prefix_file_out(), "Xpto31_A_L001")
+			
+			self.assertEquals(len(configFile.get_vect_cmd()), 2)
+			self.assertEquals(len(configFile.get_vect_cmd_one_file()), 0)
+			self.assertEquals(len(configFile.get_vect_cmd_two_files()), 0)
+			
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(\
+				configFile.get_output_path(), configFile.get_vect_cmd()[0]),\
+				"bash tests/cmd/process.sh --outdir /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto3_A_L001 "\
+				"--file1 files/dir_with_files_8/Xpto3_A_L001_1P.fastq files/dir_with_files_8/dir_with_files_8_1P.fastq")
+		else:
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file1(), "files/dir_with_files_8/Xpto3_A_L001_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file1_changed(), "files/dir_with_files_8/dir_with_files_8_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2(), "files/dir_with_files_8/Xpto3_A_L001_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2_changed(), "files/dir_with_files_8/dir_with_files_8_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[1].get_prefix_file_out(), "Xpto3_A_L001")
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file1(), "files/dir_with_files_8/Xpto31_A_L001_1P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "files/dir_with_files_8/Xpto31_A_L001_2P.fastq")
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_prefix_file_out(), "Xpto31_A_L001")
+			
+			self.assertEquals(len(configFile.get_vect_cmd()), 2)
+			self.assertEquals(len(configFile.get_vect_cmd_one_file()), 0)
+			self.assertEquals(len(configFile.get_vect_cmd_two_files()), 0)
+			
+			self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(\
+				configFile.get_output_path(), configFile.get_vect_cmd()[0]),\
+				"bash tests/cmd/process.sh --outdir /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto31_A_L001 "\
+				"--file1 files/dir_with_files_8/Xpto31_A_L001_1P.fastq files/dir_with_files_8/dir_with_files_8_1P.fastq")
+			
+		self.assertEqual(configFile.has_all_pair_files(), True)
+
 		
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testName']

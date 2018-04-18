@@ -12,7 +12,7 @@ class Util(object):
 	'''
 	EXTENSION_ZIP = ".gz"
 	TEMP_DIRECTORY = "/tmp"
-	COUNT_DNA_TEMP_DIRECTORY = "countDNABox"
+	PROCESS_CLI_TEMP_DIRECTORY = "processCLI"
 	
 	def __init__(self):
 		'''
@@ -28,11 +28,16 @@ class Util(object):
 			return False
 		
 	def get_temp_file(self, file_name, sz_type):
-		main_path = os.path.join(self.TEMP_DIRECTORY, self.COUNT_DNA_TEMP_DIRECTORY)
+		main_path = os.path.join(self.TEMP_DIRECTORY, self.PROCESS_CLI_TEMP_DIRECTORY)
 		if (not os.path.exists(main_path)): os.makedirs(main_path)
 		while 1:
-			return_file = os.path.join(main_path, "count_dna_" + str(random.randrange(10000, 99999, 10)) + "_file" + sz_type)
-			if (not os.path.exists(return_file)): return return_file
+			return_file = os.path.join(main_path, "process_cli_" + file_name + "_" + str(random.randrange(10000000, 99999999, 10)) + "_file" + sz_type)
+			if (os.path.exists(return_file)): continue
+			try:
+				os.close(os.open(return_file, os.O_CREAT | os.O_EXCL))
+				return return_file
+			except FileExistsError:
+				pass
 			
 	def remove_temp_file(self, sz_file_name):
 		if os.path.exists(sz_file_name) and len(sz_file_name) > 0 and sz_file_name.find(self.TEMP_DIRECTORY) == 0:
@@ -74,6 +79,5 @@ class Util(object):
 		m = re.search('[a-zA-Z0-9_\.]+_(\d+[pP])[_\.][a-zA-Z0-9_\.]+', file_name)
 		if (not m is None and self.is_integer(file_name[m.regs[1][0]:m.regs[1][1] - 1])): return int(file_name[m.regs[1][0]:m.regs[1][1] -1]) 
 		raise Exception("Error can't find the number of the file '" + file_name + "'")
-
 
 

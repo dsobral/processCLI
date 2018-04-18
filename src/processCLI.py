@@ -2,8 +2,8 @@
 
 import time, os, sys
 from optparse import OptionParser
-from src.config.configFile import ConfigFile
-from src.constants.utils import Util
+from config.configFile import ConfigFile
+from constants.utils import Util
 
 
 class ProcessCLI(object):

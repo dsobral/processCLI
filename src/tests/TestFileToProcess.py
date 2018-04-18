@@ -4,25 +4,23 @@ Created on Nov 1, 2016
 @author: mmp
 '''
 import unittest
-from src.config.configFile import FileToProcess
-from src.constants.utils import Util
+from config.configFile import FileToProcess
+from constants.utils import Util
 
 class Test(unittest.TestCase):
 
 
 	def testFileToProcess(self):
-		fileToProcess = FileToProcess("fie_r1_temp", "fie_r2_temp", "temp", 3, ".fastq.gz", "fastq.gz", True)
+		fileToProcess = FileToProcess("fie_r1_temp", "fie_r2_temp", "temp", 3, ".fastq.gz", "fastq.gz")
 		self.assertEqual(fileToProcess.get_file1(), "fie_r1_temp")
 		self.assertEqual(fileToProcess.get_file2(), "fie_r2_temp")
 		self.assertEqual(fileToProcess.get_prefix_file_out(), "temp")
 		self.assertEqual(fileToProcess.extension_1, ".fastq.gz")
 		self.assertEqual(fileToProcess.extension_2, "fastq.gz")
-		self.assertEqual(fileToProcess.replace_file_name_by_folder_name, True)
 
-		fileToProcess = FileToProcess("fie_r2_temp", "fie_r1_temp", "temp", 3, ".fastq.gz", ".fastq.gz", False)
+		fileToProcess = FileToProcess("fie_r2_temp", "fie_r1_temp", "temp", 3, ".fastq.gz", ".fastq.gz")
 		self.assertEqual(fileToProcess.get_file1(), "fie_r1_temp")
 		self.assertEqual(fileToProcess.get_file2(), "fie_r2_temp")
-		self.assertEqual(fileToProcess.replace_file_name_by_folder_name, False)
 
 
 	def testNumberFile1(self):

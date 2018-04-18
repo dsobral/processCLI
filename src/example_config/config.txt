@@ -28,12 +28,9 @@ confirm_after_collect_data=false
 ### global path where the data is going to be saved
 output_path=outData
 
-## If the file/s are inside a folder data/GSE96700_GSM2538511/Neocortex_Diestrus2.fa.gz
-##	the name is going to be replaced by  '<output_path>/GSE96700_GSM2538511/GSE96700_GSM2538511.fa.gz
-###  replace files names by folder name
-###  default is FALSE
-replace_file_name_by_folder_name=True
-
+### if all fasta/fastq files are expecting to be paired
+##
+expecting_all_paired_files=False
 
 ### command line with variables
 ##
@@ -46,6 +43,11 @@ replace_file_name_by_folder_name=True
 ## 		VARIABLES
 ##		1)	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
 ##		2)	FILE2					-> reads_R2.fastq.gz/reads_R2.fastq/reads_R2.fasta.gz/reads_R2.fasta
+
+
+##		1)	FILE1_CHANGED			-> GSE96700_GSM2538511/reads_R1.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R1.fastq.gz 
+##		2)	FILE2_CHANGED			-> GSE96700_GSM2538511/reads_R2.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R2.fastq.gz
+
 ##
 ##		OR		If not identify any _R1.<extension> in directory start looking for files ended with (fastq.gz, fastq, fasta.gz or fasta)
 ##
@@ -53,6 +55,10 @@ replace_file_name_by_folder_name=True
 ##
 ##		3)	PREFIX_FILES_OUT		-> reads
 ##		4)	OUT_FOLDER				-> outData/reads/....
+
+##		TEMP variables				-> you can create temporary files as you want
+##   								-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
+									-> at the end it's is going to be remove automatically
 cmd=snippy --cpus 10 --outdir OUT_FOLDER --prefix PREFIX_FILES_OUT --ref reference.gbk --R1 FILE1 --R2 FILE2
 
 
