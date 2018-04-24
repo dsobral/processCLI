@@ -52,10 +52,11 @@ class ProcessCLI(object):
 		self.config_file.read_file(config_file_name)
 		
 		### test output path
-		print(self.config_file.get_output_path())
-		if (not self.b_degub and os.path.exists(self.config_file.get_output_path())):
-			print("The output directory '" + self.config_file.get_output_path() + "' exist.\nPlease, choose other or remove it yourself to proceed")
-			sys.exit(0)
+		if (self.config_file.has_output_dir()):
+			if (not self.b_degub and os.path.exists(self.config_file.get_output_path())):
+				sz_value = input("The output directory '" + self.config_file.get_output_path() + "' exist.\nDo you want proceed [y|n]?")
+				if (sz_value == " "): sys.exit(0)
+				if (sz_value != 'y' and sz_value != 'Y'): sys.exit(0)
 		
 		### print all information to run...
 		self.config_file.print_command_lines_to_run()
@@ -64,12 +65,13 @@ class ProcessCLI(object):
 			if (sz_value == " "): sys.exit(0)
 			if (sz_value != 'y' and sz_value != 'Y'): sys.exit(0)
 		
-		### create the directory
-		if not os.path.exists(self.config_file.get_output_path()): os.makedirs(self.config_file.get_output_path())
+		### create the directory if necessary
+		if (self.config_file.has_output_dir()):
+			if not os.path.exists(self.config_file.get_output_path()): os.makedirs(self.config_file.get_output_path())
 		
-		### copy config file to persist
-		util = Util()
-		util.copy_file(config_file_name, os.path.join(self.config_file.get_output_path(), config_file_name.split('/')[-1]))
+			### copy config file to persist
+			util = Util()
+			util.copy_file(config_file_name, os.path.join(self.config_file.get_output_path(), config_file_name.split('/')[-1]))
 		
 		### threads			
 		self.vect_manage_process = self.config_file.get_processors() * [-1]	# list to the process available
@@ -104,6 +106,8 @@ class ProcessCLI(object):
 if __name__ == '__main__':
 
 	"""
+	V2.1 release 24/05/2018
+		Add - several fixes 
 	V2.0 release 16/04/2018
 		Add - add cmd_one_file, cmd_two_files and add a possibility of change files 
 	V1.9 release 29/03/2018
@@ -112,11 +116,13 @@ if __name__ == '__main__':
 		Add - it is possible to put environment variables in the InputDirectories paths
 	"""
 	
-	b_debug = False
+	b_debug = True
 	if (b_debug):
 		input_config_file = "tests/files/config_to_run_2.txt"
+		input_config_file = "tests/files/config_temp_files.txt"
+		input_config_file = "/home/projects/pipeline_quality/config_to_run_pair.txt"
 	else:
-		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog 1.9", add_help_option=False)
+		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog 2.1", add_help_option=False)
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file with all configurations.\nPlease check the 'config.txt' files inside of 'example_config' directory ", metavar="IN_FILE")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	

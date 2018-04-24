@@ -32,6 +32,7 @@ class ConfigFile(object):
 	VARIABLE_NAMES_FILE2_CHANGED = "FILE2_CHANGED"
 	VARIABLE_NAMES_PREFIX_FILES_OUT = "PREFIX_FILES_OUT"
 	VARIABLE_NAMES_OUT_FOLDER = "OUT_FOLDER"
+	VARIABLE_TEMPORARY = "TEMPORARY_"
 	
 
 	def __init__(self):
@@ -264,6 +265,9 @@ class ConfigFile(object):
 		m = re.search('[a-zA-Z0-9_\.]+(_[rR]\d+)[a-zA-Z0-9_\.]+', file_name)
 		if (not m is None): return file_name[:m.regs[1][0]]
 		
+		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[\.][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None): return file_name[:m.regs[1][0]]
+		
 		return self.remove_extensions_file_name(file_name)
 
 
@@ -359,9 +363,9 @@ class ConfigFile(object):
 		print( "File extensions searched: " + self.get_extensions_to_look())
 		
 		print("Command lines to process:")
-		for files_to_process in self.vect_files_to_process:
-			for command_ in self.get_vect_cmd():
-				print( "\t$ " + files_to_process.get_command_line(self.output_path, command_))
+		for vect_to_run in self.get_vect_cmd_to_run():
+			for command_ in vect_to_run:
+				print( "\t$ " + command_)
 			print
 			
 		print("\tTotal to run: " + str(len(self.vect_files_to_process)))
@@ -383,25 +387,36 @@ class ConfigFile(object):
 				vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
 			
 			### get commands one file only
-			for comand in self.vec_cmds_one_file:
-				vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
-			
-			### get commands two files only
-			for comand in self.vec_cmds_two_files:
-				if (files_to_process.has_two_files()):
+			if (files_to_process.has_two_files()):
+				### get commands two files only
+				for comand in self.vec_cmds_two_files:
 					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
+			else:
+				for comand in self.vec_cmds_one_file:
+					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
+				
 			if (len(vect_command_to_run) > 0): vect_cmd_to_process.append(vect_command_to_run)
 		return vect_cmd_to_process
 	
-
-		
+	def has_output_dir(self):
+		"""
+		Test if in commands exist OUT_FOLDER variable
+		"""
+		for command in self.vec_cmds:
+			if (command.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1): return True
+		for command in self.vec_cmds_one_file:
+			if (command.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1): return True
+		for command in self.vec_cmds_two_files:
+			if (command.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1): return True
+		return False
 			
 class FileToProcess(object):
 	'''
 	classdocs
 	'''
 
-
+	utils = Util()
+	
 	def __init__(self, file1, file2, out_prefix, index_file_to_process, extension_1, extension_2):
 		'''
 		Constructor
@@ -414,6 +429,14 @@ class FileToProcess(object):
 		self.extension_2 = extension_2
 		
 		self.__set_order_files()
+		
+		## at the end all of them are removed
+		self.dt_temp_files = {}			## holds all temporary files
+		self.temp_directory = ""
+		
+	def __exit__(self, exc_type, exc_value, traceback):
+		if (not self.temp_directory is None and len(self.temp_directory) > 0):
+			self.utils.remove_dir(self.temp_directory)
 
 	#### get parameters		
 	def get_file1(self): return self.file1
@@ -460,31 +483,61 @@ class FileToProcess(object):
 			self.file1 = self.file2
 			self.file2 = temp
 
-	VARIABLE_NAMES_FILE1 = "FILE1"
-	VARIABLE_NAMES_FILE2 = "FILE2"
-	VARIABLE_NAMES_PREFIX_FILES_OUT = "PREFIX_FILES_OUT"
-	VARIABLE_NAMES_OUT_FOLDER = "OUT_FOLDER"
-		
 	### get command line with replaced tags	
 	def get_command_line(self, output_path, cmd):
-		cmd_out = cmd.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, self.get_file1_changed())
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
+		
+		### create temp directories and files
+		for word in cmd.split("'"):
+			if (word.startswith(ConfigFile.VARIABLE_TEMPORARY)):
+				if (word not in self.dt_temp_files):
+					if (len(self.temp_directory) == 0): self.temp_directory = self.utils.get_temp_dir()
+					
+					self.dt_temp_files[word] = self.utils.get_temp_file_from_dir(self.temp_directory, "cmd", "")
+
+		cmd_out = cmd.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, '"' + self.get_file1_changed() + '"')
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, '"' + self.file1 + '"')
 		if (len(self.file2) > 0): 
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, self.get_file1_changed())
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, '"' + self.get_file2_changed() + '"')
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, '"' + self.file2 + '"')
 
 		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, self.out_prefix)
 				
-		### create output path
-		full_path = os.path.dirname(self.file1)
-		full_path = os.path.join(os.getcwd(), output_path, "/".join(full_path.replace(os.getcwd(), '')[1:].split('/')[1:]))
-		cmd = "mkdir -p {}".format(full_path)
-		os.system(cmd)
-
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_OUT_FOLDER, full_path)
+		### create output path if necessary
+		if (cmd_out.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1):
+			full_path = os.path.dirname(self.file1)
+			if (output_path.startswith('/')): full_path = self.get_path_equal(output_path, full_path)
+			else: full_path = os.path.join(os.getcwd(), output_path, "/".join(full_path.replace(os.getcwd(), '')[1:].split('/')[1:]))
+			cmd = "mkdir -p {}".format(full_path)
+			os.system(cmd)
+	
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_OUT_FOLDER, full_path)
+			
+		### replace temp files
+		for key in self.dt_temp_files:
+			cmd_out = cmd_out.replace("'" + key + "'", self.dt_temp_files[key])
+			
 		return cmd_out
 
-
+	def get_path_equal(self, output_path, full_path):
+		"""
+		output_path = /home/projects/pipeline_quality/fastqc_trim
+		full_path = /home/projects/pipeline_quality/original_data/xpto/zpt
+		return = /home/projects/pipeline_quality/fastqc_trim/xpto/zpt
+		"""
+		lst_out_path = output_path.split('/')
+		lst_full_path = full_path.split('/')
+		vect_return_path = []
+		b_equal_begin = True
+		for i in range(len(lst_full_path)):
+			if (b_equal_begin and lst_full_path[i] == lst_out_path[i]): 
+				vect_return_path.append(lst_full_path[i])
+				continue
+			else:
+				if (b_equal_begin):		## first time different
+					vect_return_path.append(lst_out_path[i])
+				else: vect_return_path.append(lst_full_path[i])
+				b_equal_begin = False
+		return "/".join(vect_return_path)
 
 
 

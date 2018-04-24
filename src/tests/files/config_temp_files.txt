@@ -4,7 +4,6 @@
 ## like this "cmd = my commad"
 ## instead use in this form "cmd=my commad"
 
-
 ####
 
 ### number of threads available to run the files
@@ -18,20 +17,21 @@ processors=1
 ## You can put value only on "extension_1=" like ".txt". It's going to process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
 ## You you want to activate both variables, FILE1 and FILE2, you can put like:
 ##  "extension_1=_1P.fastq" and "extension_2=_2P.fastq" 
-extension_1=_1P.fastq
-extension_2=_2P.fastq
+extension_1=.txt
+extension_2=
 
 
 ### If true need human confirmation after collecting all the data
 ### Set this to false if is used in a pipeline
 confirm_after_collect_data=false
 
-### if all fasta/fastq files are expecting to be paired
-##
-expecting_all_paired_files=False
 
 ### global path where the data is going to be saved
 output_path=outData
+
+### if all fasta/fastq files are expecting to be paired
+##
+expecting_all_paired_files=False
 
 ### command line with variables
 ##
@@ -44,28 +44,29 @@ output_path=outData
 ## 		VARIABLES
 ##		1)	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
 ##		2)	FILE2					-> reads_R2.fastq.gz/reads_R2.fastq/reads_R2.fasta.gz/reads_R2.fasta
-##
+
+
 ##		1)	FILE1_CHANGED			-> GSE96700_GSM2538511/reads_R1.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R1.fastq.gz 
 ##		2)	FILE2_CHANGED			-> GSE96700_GSM2538511/reads_R2.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R2.fastq.gz
+
 ##
-##		OR		If not identify any _R1.<extension> in directory start looking for files ended with (fastq.gz, fastq, fasta.gz or fasta) 
+##		OR		If not identify any _R1.<extension> in directory start looking for files ended with (fastq.gz, fastq, fasta.gz or fasta)
 ##
 ##		1)  FILE1					-> reads.fastq.gz/reads.fastq/reads.fasta.gz/reads.fasta
 ##
 ##		3)	PREFIX_FILES_OUT		-> reads
-##		4)	OUT_FOLDER			-> outData/reads/....
-##
+##		4)	OUT_FOLDER				-> outData/reads/....
+
 ##		5) TEMP variables			-> you can create temporary files as you want.
 ##   								-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
 ##									-> and at the end it's is going to be remove automatically.
-##									-> Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c
+##									-> Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c 
 
+cmd=cp FILE1 TEMPORARY_a; sleep 100; cat TEMPORARY_a; rm TEMPORARY_a;
 
-cmd=snippy --cpus 10 --outdir OUT_FOLDER --prefix PREFIX_FILES_OUT --ref reference.gbk --R1 FILE1 --R2 FILE2
-cmd_two_samples=cmd_two_files=ln -s FILE1 'TEMPORARY_a'_R1_.fq.gz; ln -s FILE2 'TEMPORARY_a'_R2_.fq.gz; trimmomatic.sh PE -threads 3 -basein 'TEMPORARY_a'_R1_.fq.gz -baseout OUT_FOLDER/PREFIX_FILES_OUT_trim SLIDINGWINDOW:5:20 LEADING:3 TRAILING:3 MINLEN:35 TOPHRED33
-
-## description of several files that lie in a directory or directories
-### read all files and try to find pairs of files
-## if not find any pairs try to find only files ended with this extension (fastq.gz, fastq, fasta.gz or fasta) 
+### description of several files that lie in a directory or directories
+## read all files and try to find pairs of files 
+## Default extension: ".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz", ".fasta" 
 InputDirectories
-files/dir_with_files
+/home/mmp/Downloads/temp/original_data
+

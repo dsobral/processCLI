@@ -25,6 +25,10 @@ class Test(unittest.TestCase):
 
 	def testNumberFile1(self):
 		util = Util()
+		self.assertEquals(util.get_number_file("sddsffdf_2.fddf"), 2)
+		self.assertEquals(util.get_number_file("sddsffdf_21.fddf"), 21)
+		self.assertEquals(util.get_number_file("sddsffdf_1.fddf"), 1)
+		self.assertEquals(util.get_number_file("sddsffdf_1_2.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r2.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r2_00.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r12_00.fddf"), 12)
