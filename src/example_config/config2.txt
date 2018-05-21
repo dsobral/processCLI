@@ -26,12 +26,15 @@ extension_2=_2P.fastq
 ### Set this to false if is used in a pipeline
 confirm_after_collect_data=false
 
+### global path where the data is going to be saved
+output_path=outData
+
+### Log file, where the progression of process are going o be saved
+log_file=outData/xpto.log
+
 ### if all fasta/fastq files are expecting to be paired
 ##
 expecting_all_paired_files=False
-
-### global path where the data is going to be saved
-output_path=outData
 
 ### command line with variables
 ##
@@ -69,3 +72,5 @@ cmd_two_samples=cmd_two_files=ln -s FILE1 'TEMPORARY_a'_R1_.fq.gz; ln -s FILE2 '
 ## if not find any pairs try to find only files ended with this extension (fastq.gz, fastq, fasta.gz or fasta) 
 InputDirectories
 files/dir_with_files
+
+

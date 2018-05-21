@@ -8,6 +8,7 @@ import os, sys, re, glob
 from os import listdir
 from constants.utils import Util
 from os.path import isfile, join
+from datetime import datetime
 
 class ConfigFile(object):
 	'''
@@ -20,11 +21,11 @@ class ConfigFile(object):
 	CONFIG_FILE_extension_1 = "extension_1="
 	CONFIG_FILE_extension_2 = "extension_2="
 	CONFIG_FILE_confirm_after_collect_data = "confirm_after_collect_data="
+	CONFIG_FILE_LOG="log_file="
 	CONFIG_FILE_cmd= "cmd="
 	CONFIG_FILE_cmd_one_file= "cmd_one_file="
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
-	CONFIG_EXTENTION_TO_LOOK = "extension="
 
 	VARIABLE_NAMES_FILE1 = "FILE1"
 	VARIABLE_NAMES_FILE1_CHANGED = "FILE1_CHANGED"
@@ -41,6 +42,7 @@ class ConfigFile(object):
 		'''
 		self.processors = 1					## number of processors
 		self.output_path = ""
+		self.log_file = ""					## log output file
 		self.vect_files_to_process = []		## files to process
 		self.vec_cmds = []					## can use several commands; run always if they have one or two files
 		self.vec_cmds_one_file = []			## can use several commands; run only when exist one fasta/fastq file
@@ -59,6 +61,7 @@ class ConfigFile(object):
 	### get several parameters
 	def get_processors(self): return self.processors
 	def get_output_path(self): return self.output_path
+	def get_log_file_name(self): return self.log_file
 	def get_vect_cmd(self): return self.vec_cmds
 	def get_vect_cmd_one_file(self): return self.vec_cmds_one_file
 	def get_vect_cmd_two_files(self): return self.vec_cmds_two_files
@@ -98,6 +101,13 @@ class ConfigFile(object):
 					raise ValueError("The processors must have an integer value")
 				if (self.processors < 1): self.processors = 1
 				continue
+
+
+			## log output file
+			if (sz_temp.lower().find(self.CONFIG_FILE_LOG.lower()) >= 0):
+				self.log_file = line.strip()[sz_temp.find(self.CONFIG_FILE_LOG.lower()) + len(self.CONFIG_FILE_LOG):].split()[0]
+				continue
+
 
 			## out_path
 			if (sz_temp.lower().find(self.CONFIG_FILE_output_path.lower()) >= 0):
@@ -381,6 +391,8 @@ class ConfigFile(object):
 	### return vect all command lines
 	def get_vect_cmd_to_run(self):
 		vect_cmd_to_process = []
+		index = 0
+		vect_index_to_remove = []
 		for files_to_process in self.vect_files_to_process:
 			vect_command_to_run = []
 			for comand in self.vec_cmds:
@@ -396,6 +408,14 @@ class ConfigFile(object):
 					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
 				
 			if (len(vect_command_to_run) > 0): vect_cmd_to_process.append(vect_command_to_run)
+			else: vect_index_to_remove.append(index)
+			index += 1
+		
+		## to remove files without cmds to process	
+		vect_index_to_remove = sorted(vect_index_to_remove, reverse=True)
+		for index_to_remove in vect_index_to_remove:
+			self.vect_files_to_process.pop(index_to_remove)
+		
 		return vect_cmd_to_process
 	
 	def has_output_dir(self):
@@ -409,7 +429,34 @@ class ConfigFile(object):
 		for command in self.vec_cmds_two_files:
 			if (command.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1): return True
 		return False
-			
+	
+	def write_log_start_process(self):
+		"""
+		write the start of tasks
+		"""
+		if (len(self.log_file) > 0):
+			with open(self.log_file, 'a') as handle_out:
+				handle_out.write("\n###############################\n###############################\n"+\
+					"It is going to process {} tasks -> {}\n".format(len(self.vect_files_to_process), str(datetime.now())))
+
+	def write_log_finish_process(self):
+		"""
+		write the start of tasks
+		"""
+		if (len(self.log_file) > 0):
+			with open(self.log_file, 'a') as handle_out:
+				handle_out.write("\n###############################\n###############################\n"+\
+					"Everything is finished -> {}\n".format(str(datetime.now())))
+				
+	def write_log_processing_task(self, n_task):
+		"""
+		write the progressing of process
+		"""
+		if (len(self.log_file) > 0):
+			with open(self.log_file, 'a') as handle_out:
+				handle_out.write("####\nProcessing {}/{}  ->  {}\n".format(n_task, len(self.vect_files_to_process), str(datetime.now())))
+		
+	
 class FileToProcess(object):
 	'''
 	classdocs

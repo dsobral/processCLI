@@ -76,9 +76,13 @@ class ProcessCLI(object):
 		### threads			
 		self.vect_manage_process = self.config_file.get_processors() * [-1]	# list to the process available
 														
+		self.config_file.write_log_start_process()
 		## for each file 
+		n_count_task = 1
 		for vect_cmd_to_run in self.config_file.get_vect_cmd_to_run():
-			n_pos_vect = self.__get_pos_process__()	# get a new position to a process
+			n_pos_vect = self.__get_pos_process__()	# get a new position to a process, otherwise wait till have a slot available
+			self.config_file.write_log_processing_task(n_count_task)
+			n_count_task += 1
 			if (n_pos_vect == -1):
 				raise Exception("Error getting a process ID %s"  % time.ctime())
 
@@ -90,7 +94,7 @@ class ProcessCLI(object):
 					exit_status = os.system(cmd_to_run)
 					if (exit_status != 0): sys.exit(exit_status)
 				sys.exit(0)
-			else: self.vect_manage_process[n_pos_vect] = new_ID # is the prent but the ID is from the child
+			else: self.vect_manage_process[n_pos_vect] = new_ID # it is the present but the ID is from the child
 			
 		########
 		# waiting till the end
@@ -98,6 +102,8 @@ class ProcessCLI(object):
 			time.sleep(1 if self.b_degub else 10)
 			if (self.__is_all_end__()): break
 		
+		### write the log that everythinf is finished
+		self.config_file.write_log_finish_process()
 		
 		### read all exit status...
 		print("Finished...")
@@ -106,7 +112,9 @@ class ProcessCLI(object):
 if __name__ == '__main__':
 
 	"""
-	V2.1 release 24/05/2018
+	V2.2 release 04/05/2018
+		Add - progress report 
+	V2.1 release 24/04/2018
 		Add - several fixes 
 	V2.0 release 16/04/2018
 		Add - add cmd_one_file, cmd_two_files and add a possibility of change files 
@@ -116,13 +124,13 @@ if __name__ == '__main__':
 		Add - it is possible to put environment variables in the InputDirectories paths
 	"""
 	
-	b_debug = True
+	b_debug = False
 	if (b_debug):
 		input_config_file = "tests/files/config_to_run_2.txt"
 		input_config_file = "tests/files/config_temp_files.txt"
 		input_config_file = "/home/projects/pipeline_quality/config_to_run_pair.txt"
 	else:
-		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog 2.1", add_help_option=False)
+		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog 2.2", add_help_option=False)
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file with all configurations.\nPlease check the 'config.txt' files inside of 'example_config' directory ", metavar="IN_FILE")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	

@@ -29,6 +29,10 @@ confirm_after_collect_data=false
 ### global path where the data is going to be saved
 output_path=outData
 
+
+### Log file, where the progression of process are going o be saved
+log_file=xpto.log
+
 ### if all fasta/fastq files are expecting to be paired
 ##
 expecting_all_paired_files=False
@@ -72,3 +76,5 @@ cmd_two_samples=cmd_two_files=ln -s FILE1 'TEMPORARY_a'_R1_.fq.gz; ln -s FILE2 '
 ## Default extension: ".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz", ".fasta" 
 InputDirectories
 files/dir_with_files
+
+
