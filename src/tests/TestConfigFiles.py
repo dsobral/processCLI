@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
 				self.assertEqual(files_to_process.get_file1(), "files/dir_with_files/Xpto3_A_L001_r1.fastq.gz")
 				self.assertEqual(files_to_process.get_file2(), "files/dir_with_files/Xpto3_A_L001_r2.fastq")
 				self.assertEqual(files_to_process.get_command_line(configFile.get_output_path(), configFile.get_vect_cmd()[0]), 
-						'bash tests/cmd/process.sh /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files '\
+						'bash tests/cmd/process.sh /home/mmp/git/processCLI/src/tests/outData/dir_with_files '\
 						'Xpto3_A "files/dir_with_files/Xpto3_A_L001_r1.fastq.gz" "files/dir_with_files/Xpto3_A_L001_r2.fastq"')
 			if (files_to_process.get_prefix_file_out() == "Xpto_A"):
 				n_count += 1
@@ -64,7 +64,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file1(), "files/dir_with_files_9/Xpto3_A_L001_1.fastq")
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "files/dir_with_files_9/Xpto3_A_L001_2.fastq")
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(configFile.get_output_path(), configFile.get_vect_cmd()[0]), 
-					'bash tests/cmd/process.sh /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files_9 '\
+					'bash tests/cmd/process.sh /home/mmp/git/processCLI/src/tests/outData/dir_with_files_9 '\
 					'Xpto3_A_L001 "files/dir_with_files_9/Xpto3_A_L001_1.fastq" "files/dir_with_files_9/Xpto3_A_L001_2.fastq"')
 		
 	def testFile1(self):
@@ -233,8 +233,8 @@ class Test(unittest.TestCase):
 		configFile = ConfigFile()
 		configFile.read_file("files/config12.txt")
 		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 2)
-		self.assertEqual(configFile.get_vect_files_not_to_process()[0], "files/dir_with_files_5/Xpto3_A_L001_2P.fastq")
-		self.assertEqual(configFile.get_vect_files_not_to_process()[1], "files/dir_with_files_5/Xpto3_A_L001_1P.fastq")
+		self.assertEqual(configFile.get_vect_files_not_to_process()[0], "files/dir_with_files_5/Xpto3_A_L001_1P.fastq")
+		self.assertEqual(configFile.get_vect_files_not_to_process()[1], "files/dir_with_files_5/Xpto3_A_L001_2P.fastq")
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 1)
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file1(), "files/dir_with_files_5/temp2.txt")
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "")
@@ -360,7 +360,7 @@ class Test(unittest.TestCase):
 			
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(\
 				configFile.get_output_path(), configFile.get_vect_cmd()[0]),\
-				'bash tests/cmd/process.sh --outdir /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto3_A_L001 '\
+				'bash tests/cmd/process.sh --outdir /home/mmp/git/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto3_A_L001 '\
 				'--file1 "files/dir_with_files_8/Xpto3_A_L001_1P.fastq" "files/dir_with_files_8/dir_with_files_8_1P.fastq"')
 		else:
 			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file1(), "files/dir_with_files_8/Xpto3_A_L001_1P.fastq")
@@ -378,7 +378,7 @@ class Test(unittest.TestCase):
 			
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(\
 				configFile.get_output_path(), configFile.get_vect_cmd()[0]),\
-				'bash tests/cmd/process.sh --outdir /home/mmp/eclipse_oxygen/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto31_A_L001 '\
+				'bash tests/cmd/process.sh --outdir /home/mmp/git/processCLI/src/tests/outData/dir_with_files_8 --prefix Xpto31_A_L001 '\
 				'--file1 "files/dir_with_files_8/Xpto31_A_L001_1P.fastq" "files/dir_with_files_8/dir_with_files_8_1P.fastq"')
 			
 		self.assertEqual(configFile.has_all_pair_files(), True)

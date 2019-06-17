@@ -113,3 +113,8 @@ class Util(object):
 		raise Exception("Error can't find the number of the file '" + file_name + "'")
 
 
+	def is_false(self, sz_temp):
+		sz_temp = sz_temp.lower()
+		return sz_temp == "false" or sz_temp == "f" or sz_temp == "0" or sz_temp == "no"
+
+

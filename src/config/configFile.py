@@ -130,14 +130,14 @@ class ConfigFile(object):
 			if (sz_temp.lower().find(self.CONFIG_FILE_confirm_after_collect_data.lower()) >= 0):
 				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):]) > 0):
 					sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):].split()[0].lower()
-					if (sz_temp == "false" or sz_temp == "f" or sz_temp == "0"): self.confirm_after_collect_data = False
+					if (self.util.is_false(sz_temp)): self.confirm_after_collect_data = False
 				continue
 			
 			## expecting_all_paired_files
 			if (sz_temp.lower().find(self.CONFIG_FILE_expecting_all_paired_files.lower()) >= 0):
 				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):]) > 0):
 					sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):].split()[0].lower()
-					if (sz_temp == "false" or sz_temp == "f" or sz_temp == "0"): self.expecting_all_paired_files = False
+					if (self.util.is_false(sz_temp)): self.expecting_all_paired_files = False
 				continue
 
 			## out_global_report
