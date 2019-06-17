@@ -376,7 +376,7 @@ class ConfigFile(object):
 		for vect_to_run in self.get_vect_cmd_to_run():
 			for command_ in vect_to_run:
 				print( "\t$ " + command_)
-			print
+			print("#######################")
 			
 		print("\tTotal to run: " + str(len(self.vect_files_to_process)))
 		print
