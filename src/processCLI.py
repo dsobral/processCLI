@@ -92,7 +92,10 @@ class ProcessCLI(object):
 			elif new_ID == 0: # is the child
 				for cmd_to_run in vect_cmd_to_run:
 					exit_status = os.system(cmd_to_run)
-					if (exit_status != 0): sys.exit(exit_status)
+					print("Command line: " + cmd_to_run)
+					if (exit_status != 0):
+						### don't kill with exit status different than zero, because some command lines, exit with different than zero in success 
+						print("Exit_status {}".format(exit_status))
 				sys.exit(0)
 			else: self.vect_manage_process[n_pos_vect] = new_ID # it is the present but the ID is from the child
 			
@@ -152,4 +155,7 @@ if __name__ == '__main__':
 	
 	if (b_debug): processCLI.process_config_file(input_config_file)
 	else: processCLI.process_config_file(options.input)
-	
+
+
+
+
