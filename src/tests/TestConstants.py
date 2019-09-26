@@ -20,6 +20,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(constants.ambiguos_to_unambiguous("RYKMSWBDHVN"), "[AG][TC][GT][AC][GC][AT][CGT][AGT][ACT][ACG][ACGT]", "must be equal")
 		self.assertEqual(constants.complement("RYKMSWBDHVN"), "YRMKSWVHDBN", "must be equal")
 
+		
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testConstants']
 	unittest.main()

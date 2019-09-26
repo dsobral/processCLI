@@ -9,14 +9,6 @@ from config.configFile import ConfigFile
 class Test(unittest.TestCase):
 
 
-	def setUp(self):
-		pass
-
-
-	def tearDown(self):
-		pass
-
-
 	def testFile(self):
 		
 		configFile = ConfigFile()
@@ -66,6 +58,33 @@ class Test(unittest.TestCase):
 		self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(configFile.get_output_path(), configFile.get_vect_cmd()[0]), 
 					'bash tests/cmd/process.sh /home/mmp/git/processCLI/src/tests/outData/dir_with_files_9 '\
 					'Xpto3_A_L001 "files/dir_with_files_9/Xpto3_A_L001_1.fastq" "files/dir_with_files_9/Xpto3_A_L001_2.fastq"')
+		
+	
+	def testFile51(self):
+		WORKING_PATH_TEST_51 = "/home/mmp/git/processCLI/src/tests"
+		self.assertTrue(os.getcwd() == WORKING_PATH_TEST_51, "Must be equal, otherwise change it in congig51.txt")
+
+		configFile = ConfigFile()
+		configFile.read_file("files/config51.txt")
+			
+		self.assertTrue(configFile.get_processors() == 2)
+		self.assertTrue(configFile.get_output_path() == "outData")
+		self.assertTrue(len(configFile.get_vect_cmd()) == 1)
+		self.assertFalse(configFile.get_confirm_after_collect_data())
+		self.assertEqual(configFile.get_vect_cmd()[0], "bash tests/cmd/process.sh OUT_FOLDER PREFIX_FILES_OUT FILE1 FILE2")
+		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 0)
+		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
+		
+		self.assertEqual(configFile.get_vect_files_to_process()[0].get_prefix_file_out(), "Xpto31_A_L001")
+		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file1(), "/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/Xpto31_A_L001_1P.fastq")
+		self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/Xpto31_A_L001_2P.fastq")
+		self.assertEqual(configFile.get_vect_files_to_process()[0].get_command_line(configFile.get_output_path(), configFile.get_vect_cmd()[0]), 
+					'bash tests/cmd/process.sh /home/mmp/git/processCLI/src/tests/outData/ Xpto31_A_L001 "/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/Xpto31_A_L001_1P.fastq" '\
+					'"/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/Xpto31_A_L001_2P.fastq"')
+		self.assertEqual(configFile.get_vect_files_to_process()[1].get_command_line(configFile.get_output_path(), configFile.get_vect_cmd()[0]), 
+					'bash tests/cmd/process.sh /home/mmp/git/processCLI/src/tests/outData/input Xpto3_A_L001 "/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/input/Xpto3_A_L001_1P.fastq" '\
+					'"/home/mmp/git/processCLI/src/tests/files/dir_test_outputpath/fastq/input/Xpto3_A_L001_2P.fastq"')
+		
 		
 	def testFile1(self):
 		configFile = ConfigFile()
@@ -118,7 +137,7 @@ class Test(unittest.TestCase):
 		try:
 			configFile.read_file("files/config7_fail.txt")
 		except Exception as e:
-			self.assertEqual(e.args[0], "Error: the file 'Xpto3_A_L001_r2.fastq' exist more than on time in the directory 'files/dir_with_files_fail'")
+			self.assertEqual(e.args[0], "Error: the file 'Xpto3_A_L001_r2.fastq.gz' exist more than on time in the directory 'files/dir_with_files_fail'")
 			return
 		self.fail("Must raise an error")
 	

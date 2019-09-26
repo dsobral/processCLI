@@ -239,19 +239,24 @@ class ConfigFile(object):
 					self.vect_files_not_to_process.append(file_name)
 				continue
 
-			only_file_name = file_name.split('/')[-1]		## get only the name
+			only_file_name = os.path.basename(file_name)		## get only the name
 			prefix_file_name = self.get_prefix_file_name(only_file_name)
 			if (prefix_file_name in dict_join_files):
 				if (self.remove_extensions_file_name(only_file_name) in dict_out_normalized_files): raise Exception("Error: the file '" + only_file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
 				dict_join_files[prefix_file_name].append(file_name.replace(sz_line_to_parse, ''))
 				dict_out_normalized_files[self.remove_extensions_file_name(only_file_name)] = 1
-			else: dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '')]
+			else: 
+				dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '')]
+				
+				### small caveat
+				if (len(self.extension_to_look_1) == 0): dict_out_normalized_files[self.remove_extensions_file_name(only_file_name)] = 1
+
 
 		### create lines by 
 		for key_dir in dict_join_files:
 			vect_files_result.append(FileToProcess(dir_file_to_files + "/" + dict_join_files[key_dir][0],\
 										dir_file_to_files + "/" + dict_join_files[key_dir][1] if len(dict_join_files[key_dir]) > 1 else "",\
-										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2))
+										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2, dir_file_to_files))
 			index_file_to_process += 1
 		return (vect_files_result, index_file_to_process)
 
@@ -316,13 +321,17 @@ class ConfigFile(object):
 			if (prefix_file_name in dict_join_files):
 				if (prefix_file_name in dict_out_normalized_files): raise Exception("Error: the file '" + file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
 				dict_out_normalized_files[prefix_file_name] = 1
-			else: dict_join_files[prefix_file_name] = [file_name]
+			else: 
+				dict_join_files[prefix_file_name] = [file_name]
+
+				### small caveat
+				if (len(self.extension_to_look_1) == 0): dict_out_normalized_files[self.remove_extensions_file_name(file_name)] = 1
 
 		### create lines by 
 		for key_dir in dict_join_files:
 			vect_files_result.append(FileToProcess(os.path.join(dir_file_to_files, dict_join_files[key_dir][0]), 
 										os.path.join(dir_file_to_files, dict_join_files[key_dir][1]) if len(dict_join_files[key_dir]) > 1 else "", 
-										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2, False))
+										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2, False, dir_file_to_files))
 			index_file_to_process += 1
 		return (vect_files_result, index_file_to_process)
 
@@ -332,7 +341,7 @@ class ConfigFile(object):
 		if (len(self.extension_to_look_1) > 0 or len(self.extension_to_look_2) > 0): return file_name
 		
 		for to_search in self.VECT_FILE_EXTENSIONS:
-			if (file_name.find(to_search) == len(file_name) - len(to_search)):
+			if (file_name.endswith(to_search)):
 				return file_name[:len(file_name) - len(to_search)]
 		return file_name
 
@@ -464,7 +473,7 @@ class FileToProcess(object):
 
 	utils = Util()
 	
-	def __init__(self, file1, file2, out_prefix, index_file_to_process, extension_1, extension_2):
+	def __init__(self, file1, file2, out_prefix, index_file_to_process, extension_1, extension_2, dir_file_to_files):
 		'''
 		Constructor
 		'''
@@ -480,6 +489,12 @@ class FileToProcess(object):
 		## at the end all of them are removed
 		self.dt_temp_files = {}			## holds all temporary files
 		self.temp_directory = ""
+		
+		### remove end 
+		while len(dir_file_to_files) > 0:
+			if (dir_file_to_files.endswith('/')): dir_file_to_files = dir_file_to_files[:-1]
+			else: break
+		self.dir_file_to_files = dir_file_to_files	### has the directory of source files
 		
 	def __exit__(self, exc_type, exc_value, traceback):
 		if (not self.temp_directory is None and len(self.temp_directory) > 0):
@@ -552,8 +567,17 @@ class FileToProcess(object):
 		### create output path if necessary
 		if (cmd_out.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1):
 			full_path = os.path.dirname(self.file1)
+			print(full_path, output_path, os.getcwd(), self.dir_file_to_files)
+		#	/storage/home/areis/JOANA_VIEIRA2019/smallRNA/raw_data     fastqc_beforetrim    /storage/home/areis/JOANA_VIEIRA2019/smallRNA/pre-analysis
+		#	files/dir_with_files outData /home/mmp/git/processCLI/src/tests
 			if (output_path.startswith('/')): full_path = self.get_path_equal(output_path, full_path)
-			else: full_path = os.path.join(os.getcwd(), output_path, "/".join(full_path.replace(os.getcwd(), '')[1:].split('/')[1:]))
+			elif (self.dir_file_to_files.startswith('/')): 
+				temp_path = full_path.replace(self.dir_file_to_files, "")
+				if (temp_path.startswith('/')): temp_path = temp_path[1:]
+				full_path = os.path.join(os.getcwd(), output_path, temp_path)
+			else: 
+				full_path = os.path.join(os.getcwd(), output_path, "/".join( full_path.replace(os.getcwd(), '')[1:].split('/')[1:] ))
+			print(full_path)
 			cmd = "mkdir -p {}".format(full_path)
 			os.system(cmd)
 	

@@ -11,14 +11,14 @@ class Test(unittest.TestCase):
 
 
 	def testFileToProcess(self):
-		fileToProcess = FileToProcess("fie_r1_temp", "fie_r2_temp", "temp", 3, ".fastq.gz", "fastq.gz")
+		fileToProcess = FileToProcess("fie_r1_temp", "fie_r2_temp", "temp", 3, ".fastq.gz", "fastq.gz", "")
 		self.assertEqual(fileToProcess.get_file1(), "fie_r1_temp")
 		self.assertEqual(fileToProcess.get_file2(), "fie_r2_temp")
 		self.assertEqual(fileToProcess.get_prefix_file_out(), "temp")
 		self.assertEqual(fileToProcess.extension_1, ".fastq.gz")
 		self.assertEqual(fileToProcess.extension_2, "fastq.gz")
 
-		fileToProcess = FileToProcess("fie_r2_temp", "fie_r1_temp", "temp", 3, ".fastq.gz", ".fastq.gz")
+		fileToProcess = FileToProcess("fie_r2_temp", "fie_r1_temp", "temp", 3, ".fastq.gz", ".fastq.gz", "")
 		self.assertEqual(fileToProcess.get_file1(), "fie_r1_temp")
 		self.assertEqual(fileToProcess.get_file2(), "fie_r2_temp")
 
