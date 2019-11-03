@@ -567,7 +567,7 @@ class FileToProcess(object):
 		### create output path if necessary
 		if (cmd_out.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1):
 			full_path = os.path.dirname(self.file1)
-			print(full_path, output_path, os.getcwd(), self.dir_file_to_files)
+		#	print(full_path, output_path, os.getcwd(), self.dir_file_to_files)
 		#	/storage/home/areis/JOANA_VIEIRA2019/smallRNA/raw_data     fastqc_beforetrim    /storage/home/areis/JOANA_VIEIRA2019/smallRNA/pre-analysis
 		#	files/dir_with_files outData /home/mmp/git/processCLI/src/tests
 			if (output_path.startswith('/')): full_path = self.get_path_equal(output_path, full_path)
@@ -577,7 +577,7 @@ class FileToProcess(object):
 				full_path = os.path.join(os.getcwd(), output_path, temp_path)
 			else: 
 				full_path = os.path.join(os.getcwd(), output_path, "/".join( full_path.replace(os.getcwd(), '')[1:].split('/')[1:] ))
-			print(full_path)
+		#	print(full_path)
 			cmd = "mkdir -p {}".format(full_path)
 			os.system(cmd)
 	
