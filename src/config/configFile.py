@@ -205,10 +205,8 @@ class ConfigFile(object):
 		"""
 		sz_line_to_parse = os.path.expandvars(sz_line_to_parse)
 		lstData = sz_line_to_parse.split()
-		dir_file_to_files_with_wild_char = ""
 		dir_file_to_files = lstData[0]
 		if (dir_file_to_files.split('/')[-1].find("*") != -1):
-			dir_file_to_files_with_wild_char = dir_file_to_files
 			if (len(dir_file_to_files.split('/')) == 1): dir_file_to_files = "."
 			else: dir_file_to_files = "/".join(dir_file_to_files.split('/')[:-1])
 		if (not os.path.exists(dir_file_to_files)):
@@ -225,21 +223,21 @@ class ConfigFile(object):
 #		vect_files_to_read = glob.glob(dir_file_to_files_with_wild_char, recursive=True) if len(dir_file_to_files_with_wild_char) > 0 else  [f for f in listdir(dir_file_to_files) if isfile(join(dir_file_to_files, f))]
 		vect_files_to_read = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_file_to_files) for f in filenames]
 		for file_name in vect_files_to_read:
-			if (not self.__ends_with_extension(file_name.split('/')[-1])):
+			only_file_name = os.path.basename(file_name)		## get only the name
+			if (not self.__ends_with_extension(only_file_name)):
 				self.vect_files_not_to_process.append(file_name)
 				continue
 			try:
 				self.util.get_number_file(file_name)
 			except Exception:
 				### try to get the prefix file name
-				prefix_file_name = self.get_prefix_file_name(file_name.split('/')[-1])
-				if (len(prefix_file_name) > 0 and self.__ends_with_extension(file_name.split('/')[-1])):
+				prefix_file_name = self.get_prefix_file_name(only_file_name)
+				if (len(prefix_file_name) > 0 and self.__ends_with_extension(only_file_name)):
 					dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '')]
 				else:
 					self.vect_files_not_to_process.append(file_name)
 				continue
 
-			only_file_name = os.path.basename(file_name)		## get only the name
 			prefix_file_name = self.get_prefix_file_name(only_file_name)
 			if (prefix_file_name in dict_join_files):
 				if (self.remove_extensions_file_name(only_file_name) in dict_out_normalized_files): raise Exception("Error: the file '" + only_file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
@@ -277,11 +275,19 @@ class ConfigFile(object):
 # 		m = re.search('[a-zA-Z0-9_\.]+(_[lL]\d+)[a-zA-Z0-9_\.]+', file_name)
 # 		if (not m is None): return file_name[:m.regs[1][0]]
 		
+		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[\.][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None): return file_name[:m.regs[1][0]]
+		
+		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[_\.][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None): return file_name[:m.regs[1][0]]
+		
+		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[_][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None): return file_name[:m.regs[1][0]]
+		
 		m = re.search('[a-zA-Z0-9_\.]+(_[rR]\d+)[a-zA-Z0-9_\.]+', file_name)
 		if (not m is None): return file_name[:m.regs[1][0]]
 		
-		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[\.][a-zA-Z0-9_\.]+', file_name)
-		if (not m is None): return file_name[:m.regs[1][0]]
+		
 		
 		return self.remove_extensions_file_name(file_name)
 
@@ -360,7 +366,7 @@ class ConfigFile(object):
 		if (len(self.extension_to_look_1) > 0 or len(self.extension_to_look_2) > 0):
 			if(len(self.extension_to_look_1) > 0): self.VECT_FILE_EXTENSIONS = [self.extension_to_look_1]
 			if(len(self.extension_to_look_2) > 0 and self.extension_to_look_2 not in self.VECT_FILE_EXTENSIONS):
-				self.VECT_FILE_EXTENSIONS = [self.extension_to_look_1]
+				self.VECT_FILE_EXTENSIONS.append(self.extension_to_look_2)
 		return '; '.join(self.VECT_FILE_EXTENSIONS)
 	
 	def get_repeated_files_names(self):
@@ -464,6 +470,15 @@ class ConfigFile(object):
 		if (len(self.log_file) > 0):
 			with open(self.log_file, 'a') as handle_out:
 				handle_out.write("####\nProcessing {}/{}  ->  {}\n".format(n_task, len(self.vect_files_to_process), str(datetime.now())))
+		
+	def write_log_message(self, n_task, message):
+		"""
+		write the progressing of process
+		"""
+		if (len(self.log_file) > 0):
+			with open(self.log_file, 'a') as handle_out:
+				handle_out.write("####\nMessage for process {}/{}  ->  {}\n{}\n".format(n_task,
+							len(self.vect_files_to_process), str(datetime.now()), message))
 		
 	
 class FileToProcess(object):
@@ -586,7 +601,8 @@ class FileToProcess(object):
 		### replace temp files
 		for key in self.dt_temp_files:
 			cmd_out = cmd_out.replace("'" + key + "'", self.dt_temp_files[key])
-			
+		
+		cmd_out = cmd_out.replace('//', '/')	### only to clean paths
 		return cmd_out
 
 	def get_path_equal(self, output_path, full_path):

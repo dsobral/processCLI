@@ -4,7 +4,7 @@ Created on Nov 1, 2016
 @author: mmp
 '''
 import unittest
-from config.configFile import FileToProcess
+from config.configFile import FileToProcess, ConfigFile
 from constants.utils import Util
 
 class Test(unittest.TestCase):
@@ -30,8 +30,11 @@ class Test(unittest.TestCase):
 		self.assertEquals(util.get_number_file("sddsffdf_1.fddf"), 1)
 		self.assertEquals(util.get_number_file("sddsffdf_1_2.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r2.fddf"), 2)
-		self.assertEquals(util.get_number_file("sddsffdf_r2_00.fddf"), 2)
-		self.assertEquals(util.get_number_file("sddsffdf_r12_00.fddf"), 12)
+		self.assertEquals(util.get_number_file("sddsffdf_r2_0.fddf"), 0)
+		self.assertEquals(util.get_number_file("sddsffdf_r12_2.fddf"), 2)
+		self.assertEquals(util.get_number_file("sddsffdf_r12_2_xpto.fddf"), 2)
+		self.assertEquals(util.get_number_file("sddsffdf_r12_2_.fddf"), 2)
+		self.assertEquals(util.get_number_file("sddsffdf_r12_.fddf"), 12)
 		try:
 			self.assertEquals(util.get_number_file("sddsffdf_r2fddf"), 2)
 		except Exception as e:
@@ -39,6 +42,21 @@ class Test(unittest.TestCase):
 			return 
 		self.fail("Must raise a error for file name 'sddsffdf_r2fddf'")
 
+	def test_get_prefix_file_name(self):
+		
+		config_file = ConfigFile()
+		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_2.fddf"))
+		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_L2_R1_1.fddf"))
+		self.assertEquals("sddsffdf_r2", config_file.get_prefix_file_name("sddsffdf_r2_0.fddf"))
+		self.assertEquals("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2_xpto.fddf"))
+		self.assertEquals("sddsffdf_1", config_file.get_prefix_file_name("sddsffdf_1_2.fddf"))
+		self.assertEquals("sddsffdf_1", config_file.get_prefix_file_name("sddsffdf_1_2_.fddf"))
+		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_r12_.fddf"))
+		self.assertEquals("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2.fddf"))
+		
+		
+		
+		
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testName']
 	unittest.main()

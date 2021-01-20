@@ -91,11 +91,14 @@ class ProcessCLI(object):
 				raise Exception("Error forking the main process, time: %s"  % time.ctime())
 			elif new_ID == 0: # is the child
 				for cmd_to_run in vect_cmd_to_run:
-					exit_status = os.system(cmd_to_run)
 					print("Command line: " + cmd_to_run)
+					exit_status = os.system(cmd_to_run)
 					if (exit_status != 0):
 						### don't kill with exit status different than zero, because some command lines, exit with different than zero in success 
 						print("Exit_status {}".format(exit_status))
+						if (not cmd_to_run.startswith('grep')):
+							self.config_file.write_log_message(n_count_task, "Error: this command line failed - {}".format(cmd_to_run))
+							sys.exit(0)
 				sys.exit(0)
 			else: self.vect_manage_process[n_pos_vect] = new_ID # it is the present but the ID is from the child
 			

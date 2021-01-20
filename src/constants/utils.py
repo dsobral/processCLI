@@ -104,12 +104,21 @@ class Util(object):
 		return class_to_return
 
 	def get_number_file(self, file_name):
-		m = re.search('[a-zA-Z0-9_\.]+_([rR]\d+)[_\.][a-zA-Z0-9_\.]+', file_name)
-		if (not m is None and self.is_integer(file_name[m.regs[1][0] + 1:m.regs[1][1]])): return int(file_name[m.regs[1][0] + 1:m.regs[1][1]])
+		### 1 test _<number>_.
+		### 2 test _<number>.
+		### 3 test _<number>_.
+		### 4 test _R<number>_.
+		### 5 test _R<number>.
 		m = re.search('[a-zA-Z0-9_\.]+_(\d+[pP])[_\.][a-zA-Z0-9_\.]+', file_name)
 		if (not m is None and self.is_integer(file_name[m.regs[1][0]:m.regs[1][1] - 1])): return int(file_name[m.regs[1][0]:m.regs[1][1] -1])
 		m = re.search('[a-zA-Z0-9_\.]+_(\d+)[\.][a-zA-Z0-9_\.]+', file_name)
-		if (not m is None and self.is_integer(file_name[m.regs[1][0]:m.regs[1][1]])): return int(file_name[m.regs[1][0]:m.regs[1][1]]) 
+		if (not m is None and self.is_integer(file_name[m.regs[1][0]:m.regs[1][1]])): return int(file_name[m.regs[1][0]:m.regs[1][1]])
+		m = re.search('[a-zA-Z0-9_\.]+_(\d+)[_][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None and self.is_integer(file_name[m.regs[1][0]:m.regs[1][1]])): return int(file_name[m.regs[1][0]:m.regs[1][1]])
+		m = re.search('[a-zA-Z0-9_\.]+_([rR]\d+)[_\.][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None and self.is_integer(file_name[m.regs[1][0] + 1:m.regs[1][1]])): return int(file_name[m.regs[1][0] + 1:m.regs[1][1]])
+		m = re.search('[a-zA-Z0-9_\.]+_([rR]\d+)[\.][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None and self.is_integer(file_name[m.regs[1][0] + 1:m.regs[1][1]])): return int(file_name[m.regs[1][0] + 1:m.regs[1][1]]) 
 		raise Exception("Error can't find the number of the file '" + file_name + "'")
 
 
