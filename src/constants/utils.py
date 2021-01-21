@@ -11,7 +11,7 @@ class Util(object):
 	classdocs
 	'''
 	EXTENSION_ZIP = ".gz"
-	TEMP_DIRECTORY = "/tmp"
+	TEMP_DIRECTORY = os.getenv("TMP", "/tmp")
 	PROCESS_CLI_TEMP_DIRECTORY = "processCLI"
 	
 	def __init__(self):
