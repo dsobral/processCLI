@@ -275,6 +275,9 @@ class ConfigFile(object):
 # 		m = re.search('[a-zA-Z0-9_\.]+(_[lL]\d+)[a-zA-Z0-9_\.]+', file_name)
 # 		if (not m is None): return file_name[:m.regs[1][0]]
 		
+		m = re.search('[a-zA-Z0-9_\.]+(_[rR]\d)[_][a-zA-Z0-9_\.]+', file_name)
+		if (not m is None): return file_name[:m.regs[1][0]]
+		
 		m = re.search('[a-zA-Z0-9_\.]+(_\d+)[\.][a-zA-Z0-9_\.]+', file_name)
 		if (not m is None): return file_name[:m.regs[1][0]]
 		

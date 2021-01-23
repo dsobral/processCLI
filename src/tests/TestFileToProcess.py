@@ -26,7 +26,7 @@ class Test(unittest.TestCase):
 	def testNumberFile1(self):
 		util = Util()
 		self.assertEquals(util.get_number_file("sddsffdf_2.fddf"), 2)
-		self.assertEquals(util.get_number_file("sddsffdf_21.fddf"), 21)
+		self.assertEquals(util.get_number_file("sddsffdf_6.fddf"), 6)
 		self.assertEquals(util.get_number_file("sddsffdf_1.fddf"), 1)
 		self.assertEquals(util.get_number_file("sddsffdf_1_2.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r2.fddf"), 2)
@@ -35,6 +35,8 @@ class Test(unittest.TestCase):
 		self.assertEquals(util.get_number_file("sddsffdf_r12_2_xpto.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r12_2_.fddf"), 2)
 		self.assertEquals(util.get_number_file("sddsffdf_r12_.fddf"), 12)
+		self.assertEquals(util.get_number_file("A4P7D10_S69_R1_001.fastq.gz"), 1)
+		self.assertEquals(util.get_number_file("A4P7E8_S56_R2_001.fastq.gz"), 2)
 		try:
 			self.assertEquals(util.get_number_file("sddsffdf_r2fddf"), 2)
 		except Exception as e:
@@ -47,12 +49,14 @@ class Test(unittest.TestCase):
 		config_file = ConfigFile()
 		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_2.fddf"))
 		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_L2_R1_1.fddf"))
-		self.assertEquals("sddsffdf_r2", config_file.get_prefix_file_name("sddsffdf_r2_0.fddf"))
+		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_r2_0.fddf"))
 		self.assertEquals("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2_xpto.fddf"))
 		self.assertEquals("sddsffdf_1", config_file.get_prefix_file_name("sddsffdf_1_2.fddf"))
 		self.assertEquals("sddsffdf_1", config_file.get_prefix_file_name("sddsffdf_1_2_.fddf"))
 		self.assertEquals("sddsffdf", config_file.get_prefix_file_name("sddsffdf_r12_.fddf"))
 		self.assertEquals("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2.fddf"))
+		self.assertEquals("A4P7D10_S69", config_file.get_prefix_file_name("A4P7D10_S69_R1_001.fastq.gz"))
+		self.assertEquals("A4P7E8_S56", config_file.get_prefix_file_name("A4P7E8_S56_R2_001.fastq.gz"))
 		
 		
 		
