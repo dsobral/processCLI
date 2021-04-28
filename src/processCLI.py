@@ -40,7 +40,7 @@ class ProcessCLI(object):
 				if (self.vect_manage_process[i] == -1 and self.vect_manage_process[i] != 111010001):
 					self.vect_manage_process[i] = 111010001	#put some data to prevent to others alloc in the same spot
 					return i
-			time.sleep(10) # in seconds
+			time.sleep(0.1 if self.config_file.fast_processing else 10)
 		return -1
 	#END getPosProcess
 

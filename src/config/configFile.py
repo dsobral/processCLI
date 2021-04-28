@@ -26,6 +26,7 @@ class ConfigFile(object):
 	CONFIG_FILE_cmd_one_file= "cmd_one_file="
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
+	CONFIG_FILE_fast_processing = "fast_processing="
 
 	VARIABLE_NAMES_FILE1 = "FILE1"
 	VARIABLE_NAMES_FILE1_CHANGED = "FILE1_CHANGED"
@@ -51,6 +52,8 @@ class ConfigFile(object):
 		self.extension_to_look_2 = ""			## extension to look
 		self.confirm_after_collect_data = True
 		self.expecting_all_paired_files = True
+		self.fast_processing = False		## if the trigger to check the cmd will be fast
+											## True if the cmd are fast to run
 		self.util = Util()
 		## print "Error: the file '" + file_name + "' doesn't have order number. Must be like <prefix>_r<number>_<extension>"
 		self.vect_files_not_to_process = []
@@ -102,6 +105,13 @@ class ConfigFile(object):
 				if (self.processors < 1): self.processors = 1
 				continue
 
+			### test fast_processing has other value
+			if (sz_temp.lower().find(self.CONFIG_FILE_fast_processing.lower()) >= 0):
+				try:
+					self.fast_processing = not self.util.is_false(line.strip()[sz_temp.find(self.CONFIG_FILE_fast_processing.lower()) + len(self.CONFIG_FILE_fast_processing):].split()[0])
+				except ValueError:
+					raise ValueError("The fast_processing must have an boolean value")
+				continue
 
 			## log output file
 			if (sz_temp.lower().find(self.CONFIG_FILE_LOG.lower()) >= 0):
@@ -389,6 +399,7 @@ class ConfigFile(object):
 	def print_command_lines_to_run(self):
 		print
 		print( "File extensions searched: " + self.get_extensions_to_look())
+		print( "Fast processing: " + str(self.fast_processing))
 		
 		print("Command lines to process:")
 		for vect_to_run in self.get_vect_cmd_to_run():
