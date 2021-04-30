@@ -105,7 +105,8 @@ class ProcessCLI(object):
 		########
 		# waiting till the end
 		while 1:
-			time.sleep(1 if self.b_degub else 10)
+			if self.config_file.fast_processing: time.sleep(1)
+			else: time.sleep(1 if self.b_degub else 10)
 			if (self.__is_all_end__()): break
 		
 		### write the log that everythinf is finished
