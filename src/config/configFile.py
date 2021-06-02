@@ -243,7 +243,7 @@ class ConfigFile(object):
 				### try to get the prefix file name
 				prefix_file_name = self.get_prefix_file_name(only_file_name)
 				if (len(prefix_file_name) > 0 and self.__ends_with_extension(only_file_name)):
-					dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '')]
+					dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '', 1)]
 				else:
 					self.vect_files_not_to_process.append(file_name)
 				continue
@@ -251,10 +251,10 @@ class ConfigFile(object):
 			prefix_file_name = self.get_prefix_file_name(only_file_name)
 			if (prefix_file_name in dict_join_files):
 				if (self.remove_extensions_file_name(only_file_name) in dict_out_normalized_files): raise Exception("Error: the file '" + only_file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
-				dict_join_files[prefix_file_name].append(file_name.replace(sz_line_to_parse, ''))
+				dict_join_files[prefix_file_name].append(file_name.replace(sz_line_to_parse, '', 1))
 				dict_out_normalized_files[self.remove_extensions_file_name(only_file_name)] = 1
 			else: 
-				dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '')]
+				dict_join_files[prefix_file_name] = [file_name.replace(sz_line_to_parse, '', 1)]
 				
 				### small caveat
 				if (len(self.extension_to_look_1) == 0): dict_out_normalized_files[self.remove_extensions_file_name(only_file_name)] = 1
