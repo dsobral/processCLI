@@ -70,6 +70,37 @@ class Util(object):
 			cmd = "rm " + sz_file_name
 			os.system(cmd)
 
+	def read_text_file(self, file_name):
+		"""
+		read text file and put the result in an vector
+		"""
+		if (not os.path.exists(file_name)):
+			raise IOError(_("Error: file '" + file_name + "' doens't exist."))
+		
+		vect_out = []
+		with open(file_name) as handle: 
+			for line in handle:
+				sz_temp = line.strip()
+				if (len(sz_temp) == 0): continue
+				vect_out.append(sz_temp)
+		return vect_out
+	
+	def get_file_by_progress(self, path, prefix_name, extention):
+		"""
+		return temp file
+		"""
+		count = 1
+		while 1:
+			return_file = os.path.join(path, "{}_{}{}".format(prefix_name, count, extention))
+			if (os.path.exists(return_file)):
+				count += 1
+				continue
+			try:
+				os.close(os.open(return_file, os.O_CREAT | os.O_EXCL))
+				return return_file
+			except FileExistsError:
+				pass
+
 	def remove_dir(self, path_name):
 		if (not path_name is None):
 			cmd = "rm -r %s*" % (path_name); os.system(cmd)

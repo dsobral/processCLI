@@ -15,12 +15,15 @@ processors=1
 #######################
 ## extensions to look. It can be empty. If empty look for the regular fastq files out by illumina.
 ## Files imported by default: ".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz", ".fasta"
-## You can put value only on "extension_1=" like ".txt". It's going te need o process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
+## You can put value only on "extension_1=" like ".txt". It's going to process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
 ## You you want to activate both variables, FILE1 and FILE2, you can put like:
 ##  "extension_1=_1P.fastq" and "extension_2=_2P.fastq" 
 extension_1=_1P.fastq
 extension_2=_2P.fastq
 
+#######################
+### if you want to run all in SGE enviroment set a queue name, like -ibimed-single.q-
+queue_name=ibimed-single.q
 
 ### If true need human confirmation after collecting all the data
 ### Set this to false if is used in a pipeline

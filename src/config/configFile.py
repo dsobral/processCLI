@@ -14,6 +14,7 @@ class ConfigFile(object):
 	'''
 	classdocs
 	'''
+	SGE_OUT_SCRIPT_DIR = "qsub"
 
 	CONFIG_FILE_header_dir_file_name = "InputDirectories"
 	CONFIG_FILE_processors = "processors="
@@ -27,6 +28,7 @@ class ConfigFile(object):
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
 	CONFIG_FILE_fast_processing = "fast_processing="
+	CONFIG_FILE_queue_name = "queue_name="		##	 If name of queue exist set all on SGE
 
 	VARIABLE_NAMES_FILE1 = "FILE1"
 	VARIABLE_NAMES_FILE1_CHANGED = "FILE1_CHANGED"
@@ -50,6 +52,7 @@ class ConfigFile(object):
 		self.vec_cmds_two_files = []		## can use several commands; run only when exist two fasta/fastq files
 		self.extension_to_look_1 = ""			## extension to look
 		self.extension_to_look_2 = ""			## extension to look
+		self.queue_name = ""				## If name of queue exist set all on SGE
 		self.confirm_after_collect_data = True
 		self.expecting_all_paired_files = True
 		self.fast_processing = False		## if the trigger to check the cmd will be fast
@@ -71,6 +74,7 @@ class ConfigFile(object):
 	def get_confirm_after_collect_data(self): return self.confirm_after_collect_data
 
 	def get_vect_files_not_to_process(self): return self.vect_files_not_to_process
+	def get_len_vect_files_not_to_process(self): return len(self.vect_files_not_to_process)
 	def clean_vect_files_not_to_process(self): self.vect_files_not_to_process = []
 	def get_vect_files_to_process(self): return self.vect_files_to_process
 	def has_all_pair_files(self):
@@ -124,6 +128,11 @@ class ConfigFile(object):
 				self.output_path = line.strip()[sz_temp.find(self.CONFIG_FILE_output_path.lower()) + len(self.CONFIG_FILE_output_path):].split()[0]
 				continue
 			
+			## queue_name
+			if (sz_temp.lower().find(self.CONFIG_FILE_queue_name.lower()) >= 0):
+				self.queue_name = line.strip()[sz_temp.find(self.CONFIG_FILE_queue_name.lower()) + len(self.CONFIG_FILE_queue_name):].split()[0]
+				continue
+			
 			## extension_1
 			if (sz_temp.lower().find(self.CONFIG_FILE_extension_1.lower()) >= 0):
 				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_extension_1.lower()) + len(self.CONFIG_FILE_extension_1):]) > 0):
@@ -173,9 +182,9 @@ class ConfigFile(object):
 				self.vect_files_to_process.extend(vect_file_to_process)
 		handle.close()
 		
+		vect_index_empty = []
 		if (not self.has_all_pair_files() and self.expecting_all_paired_files):
 			n_index = 0
-			vect_index_empty = []
 			for file_to_process in self.vect_files_to_process:
 				if (len(file_to_process.get_file1()) == 0 or len(file_to_process.get_file2()) == 0):
 					self.vect_files_not_to_process.append(file_to_process.get_file_name())
@@ -189,10 +198,18 @@ class ConfigFile(object):
 		self.__test_empty_patameter__(self.output_path, "Output Path")
 		if ((len(self.vec_cmds) + len(self.vec_cmds_one_file) + len(self.vec_cmds_two_files)) == 0): 
 			raise Exception("Error: the value 'Command line to process cmd=' can't be empty")
-		if (not b_start_dir_file_description): raise Exception("Must have the 'InputDirectory' tag followed by directories that contain files")
-		if (len(self.vect_files_to_process) == 0): 
-			raise Exception("Must have files to process. Insert directories after the tag 'InputDirectory' in the config file")
+		if (not b_start_dir_file_description): raise Exception("Must have the '{}' tag followed by directories that contain files".format(ConfigFile.CONFIG_FILE_header_dir_file_name))
+		if (len(self.vect_files_to_process) == 0):
+			if (self.expecting_all_paired_files and len(vect_index_empty) > 0):
+				raise Exception("You have files but you have the flag '{}' yes. Please, check if you expect paired files.".format(ConfigFile.CONFIG_FILE_expecting_all_paired_files))
+			raise Exception("Must have files to process. Insert directories after the tag '{}' in the config file".format(ConfigFile.CONFIG_FILE_header_dir_file_name))
 
+		
+		## set log file on output folder
+		if (len(self.log_file) > 0):
+			self.log_file =  self.output_path + "/" + self.log_file
+		
+		
 	def __test_empty_patameter__(self, sz_value, sz_error):
 		if (len(sz_value) == 0): raise Exception("Error: the value '" + sz_error + "' can't be empty")
 
@@ -267,6 +284,12 @@ class ConfigFile(object):
 										key_dir, index_file_to_process, self.extension_to_look_1 , self.extension_to_look_2, dir_file_to_files))
 			index_file_to_process += 1
 		return (vect_files_result, index_file_to_process)
+
+	def is_sge(self):
+		"""
+		test if is going to run a sge qconf
+		"""
+		return len(self.queue_name) > 0
 
 
 	def get_prefix_file_name(self, file_name):
@@ -406,16 +429,34 @@ class ConfigFile(object):
 			for command_ in vect_to_run:
 				print( "\t$ " + command_)
 			print("#######################")
-			
+		
+		if self.is_sge():
+			print("\tImportant:\n\tAll commands will be submitted to SGE queue management...\n")
 		print("\tTotal to run: " + str(len(self.vect_files_to_process)))
 		print
-		if (len(self.vect_files_not_to_process) > 0):
-			print( "Next files were not recognize as valid.")
-			for file_name in self.vect_files_not_to_process:
+		if (self.get_len_vect_files_not_to_process() > 0):
+			print( "\tFiles were not recognize as valid:")
+			for _, file_name in enumerate(self.vect_files_not_to_process):
 				print("\t" + file_name)
-			print("\tTotal: " + str(len(self.vect_files_not_to_process)))
+				if _ >= 9: 
+					print("\t....... more '{}' files but not show. All files on log file '{}'".format(
+						int(self.get_len_vect_files_not_to_process()) - 10, self.log_file))
+					break
+			print("\tTotal: " + str(self.get_len_vect_files_not_to_process()))
 			print("END - files were not recognize as valid.")
 			print
+	
+	def get_files_not_to_run(self):
+		"""
+		return files not to run message
+		"""
+		sz_message = "Next files were not recognize as valid.\n"
+		for _, file_name in enumerate(self.vect_files_not_to_process):
+			sz_message += "\t" + file_name + "\n"
+		sz_message += "\tTotal: " + str(self.get_len_vect_files_not_to_process()) + "\n"
+		sz_message += "END - files were not recognize as valid.\n"
+		return sz_message
+	
 	
 	### return vect all command lines
 	def get_vect_cmd_to_run(self):
@@ -468,14 +509,14 @@ class ConfigFile(object):
 				handle_out.write("\n###############################\n###############################\n"+\
 					"It is going to process {} tasks -> {}\n".format(len(self.vect_files_to_process), str(datetime.now())))
 
-	def write_log_finish_process(self):
+	def write_log_finish_process(self, sz_message = "Everything is finished"):
 		"""
 		write the start of tasks
 		"""
 		if (len(self.log_file) > 0):
 			with open(self.log_file, 'a') as handle_out:
 				handle_out.write("\n###############################\n###############################\n"+\
-					"Everything is finished -> {}\n".format(str(datetime.now())))
+					"{} -> {}\n".format(sz_message, str(datetime.now())))
 				
 	def write_log_processing_task(self, n_task):
 		"""
@@ -485,6 +526,11 @@ class ConfigFile(object):
 			with open(self.log_file, 'a') as handle_out:
 				handle_out.write("####\nProcessing {}/{}  ->  {}\n".format(n_task, len(self.vect_files_to_process), str(datetime.now())))
 		
+	def write_log_single_message(self, message):
+		if (len(self.log_file) > 0):
+			with open(self.log_file, 'a') as handle_out:
+				handle_out.write("####\nMessage\n{}\n{}\n".format(str(datetime.now()), message))
+				
 	def write_log_message(self, n_task, message):
 		"""
 		write the progressing of process
