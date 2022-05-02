@@ -27,8 +27,9 @@ class ConfigFile(object):
 	CONFIG_FILE_cmd_one_file= "cmd_one_file="
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
-	CONFIG_FILE_fast_processing = "fast_processing="
-	CONFIG_FILE_queue_name = "queue_name="		##	 If name of queue exist set all on SGE
+	CONFIG_FILE_fast_processing = "fast_processing="	##   no wait for 
+	CONFIG_FILE_queue_name = "queue_name="				##	 If name of queue exist set all on SGE
+	CONFIG_FILE_sge_cores_requested = "SGE_cores_requested="	##	 Cores requested to run in SGE
 
 	VARIABLE_NAMES_FILE1 = "FILE1"
 	VARIABLE_NAMES_FILE1_CHANGED = "FILE1_CHANGED"
@@ -37,6 +38,7 @@ class ConfigFile(object):
 	VARIABLE_NAMES_PREFIX_FILES_OUT = "PREFIX_FILES_OUT"
 	VARIABLE_NAMES_OUT_FOLDER = "OUT_FOLDER"
 	VARIABLE_TEMPORARY = "TEMPORARY_"
+	VARIABLE_INDEX_PROCESS = "INDEX_PROCESS"
 	
 
 	def __init__(self):
@@ -53,6 +55,7 @@ class ConfigFile(object):
 		self.extension_to_look_1 = ""			## extension to look
 		self.extension_to_look_2 = ""			## extension to look
 		self.queue_name = ""				## If name of queue exist set all on SGE
+		self.sge_cores_requested = 1		## Cores requested for SGE
 		self.confirm_after_collect_data = True
 		self.expecting_all_paired_files = True
 		self.fast_processing = False		## if the trigger to check the cmd will be fast
@@ -122,7 +125,6 @@ class ConfigFile(object):
 				self.log_file = line.strip()[sz_temp.find(self.CONFIG_FILE_LOG.lower()) + len(self.CONFIG_FILE_LOG):].split()[0]
 				continue
 
-
 			## out_path
 			if (sz_temp.lower().find(self.CONFIG_FILE_output_path.lower()) >= 0):
 				self.output_path = line.strip()[sz_temp.find(self.CONFIG_FILE_output_path.lower()) + len(self.CONFIG_FILE_output_path):].split()[0]
@@ -131,6 +133,15 @@ class ConfigFile(object):
 			## queue_name
 			if (sz_temp.lower().find(self.CONFIG_FILE_queue_name.lower()) >= 0):
 				self.queue_name = line.strip()[sz_temp.find(self.CONFIG_FILE_queue_name.lower()) + len(self.CONFIG_FILE_queue_name):].split()[0]
+				continue
+			
+			## SGE cores requested
+			if (sz_temp.lower().find(self.CONFIG_FILE_sge_cores_requested.lower()) >= 0):
+				try:
+					self.sge_cores_requested = int(line.strip()[sz_temp.find(self.CONFIG_FILE_sge_cores_requested.lower()) + len(self.CONFIG_FILE_sge_cores_requested):].split()[0])
+				except ValueError:
+					raise ValueError("The sge_cores_requested must have an integer value")
+				if (self.sge_cores_requested < 2): self.sge_cores_requested = 1
 				continue
 			
 			## extension_1
@@ -207,7 +218,7 @@ class ConfigFile(object):
 		
 		## set log file on output folder
 		if (len(self.log_file) > 0):
-			self.log_file =  self.output_path + "/" + self.log_file
+			self.log_file =  os.path.join(self.output_path, self.log_file)
 		
 		
 	def __test_empty_patameter__(self, sz_value, sz_error):
@@ -323,8 +334,6 @@ class ConfigFile(object):
 		m = re.search('[a-zA-Z0-9_\.]+(_[rR]\d+)[a-zA-Z0-9_\.]+', file_name)
 		if (not m is None): return file_name[:m.regs[1][0]]
 		
-		
-		
 		return self.remove_extensions_file_name(file_name)
 
 
@@ -435,7 +444,7 @@ class ConfigFile(object):
 		print("\tTotal to run: " + str(len(self.vect_files_to_process)))
 		print
 		if (self.get_len_vect_files_not_to_process() > 0):
-			print( "\tFiles were not recognize as valid:")
+			print( "\tFiles were not recognized as valid:")
 			for _, file_name in enumerate(self.vect_files_not_to_process):
 				print("\t" + file_name)
 				if _ >= 9: 
@@ -443,43 +452,41 @@ class ConfigFile(object):
 						int(self.get_len_vect_files_not_to_process()) - 10, self.log_file))
 					break
 			print("\tTotal: " + str(self.get_len_vect_files_not_to_process()))
-			print("END - files were not recognize as valid.")
+			print("END - files were not recognized as valid.")
 			print
 	
 	def get_files_not_to_run(self):
 		"""
 		return files not to run message
 		"""
-		sz_message = "Next files were not recognize as valid.\n"
+		sz_message = "Next files were not recognized as valid.\n"
 		for _, file_name in enumerate(self.vect_files_not_to_process):
 			sz_message += "\t" + file_name + "\n"
 		sz_message += "\tTotal: " + str(self.get_len_vect_files_not_to_process()) + "\n"
-		sz_message += "END - files were not recognize as valid.\n"
+		sz_message += "END - files were not recognized as valid.\n"
 		return sz_message
 	
 	
 	### return vect all command lines
 	def get_vect_cmd_to_run(self):
 		vect_cmd_to_process = []
-		index = 0
 		vect_index_to_remove = []
-		for files_to_process in self.vect_files_to_process:
+		for _, files_to_process in enumerate(self.vect_files_to_process):
 			vect_command_to_run = []
 			for comand in self.vec_cmds:
-				vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
+				vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand, _))
 			
 			### get commands one file only
 			if (files_to_process.has_two_files()):
 				### get commands two files only
 				for comand in self.vec_cmds_two_files:
-					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
+					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand, _))
 			else:
 				for comand in self.vec_cmds_one_file:
-					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand))
+					vect_command_to_run.append(files_to_process.get_command_line(self.output_path, comand, _))
 				
 			if (len(vect_command_to_run) > 0): vect_cmd_to_process.append(vect_command_to_run)
-			else: vect_index_to_remove.append(index)
-			index += 1
+			else: vect_index_to_remove.append(_)
 		
 		## to remove files without cmds to process	
 		vect_index_to_remove = sorted(vect_index_to_remove, reverse=True)
@@ -505,6 +512,7 @@ class ConfigFile(object):
 		write the start of tasks
 		"""
 		if (len(self.log_file) > 0):
+			self.util.make_path(os.path.dirname(self.log_file))
 			with open(self.log_file, 'a') as handle_out:
 				handle_out.write("\n###############################\n###############################\n"+\
 					"It is going to process {} tasks -> {}\n".format(len(self.vect_files_to_process), str(datetime.now())))
@@ -621,23 +629,27 @@ class FileToProcess(object):
 			self.file2 = temp
 
 	### get command line with replaced tags	
-	def get_command_line(self, output_path, cmd):
+	def get_command_line(self, output_path, cmd, index_to_process):
 		
 		### create temp directories and files
 		for word in cmd.split("'"):
 			if (word.startswith(ConfigFile.VARIABLE_TEMPORARY)):
 				if (word not in self.dt_temp_files):
 					if (len(self.temp_directory) == 0): self.temp_directory = self.utils.get_temp_dir()
-					
 					self.dt_temp_files[word] = self.utils.get_temp_file_from_dir(self.temp_directory, "cmd", "")
 
-		cmd_out = cmd.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, '"' + self.get_file1_changed() + '"')
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, '"' + self.file1 + '"')
+		cmd_out = cmd.replace(" " + ConfigFile.VARIABLE_NAMES_FILE1_CHANGED + " ", ' "' + self.get_file1_changed() + '" ')
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, self.get_file1_changed())
+		cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE1 + " ", ' "' + self.file1 + '" ')
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
 		if (len(self.file2) > 0): 
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, '"' + self.get_file2_changed() + '"')
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, '"' + self.file2 + '"')
+			cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE2_CHANGED + " ", ' "' + self.get_file2_changed() + '" ')
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, self.get_file2_changed())
+			cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE2 + " ", ' "' + self.file2 + '" ')
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
 
 		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, self.out_prefix)
+		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_INDEX_PROCESS, str(index_to_process))
 				
 		### create output path if necessary
 		if (cmd_out.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1):

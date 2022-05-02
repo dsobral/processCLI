@@ -24,6 +24,9 @@ extension_2=_2P.fastq
 #######################
 ### if you want to run all in SGE enviroment set a queue name, like -ibimed-single.q-
 queue_name=ibimed-single.q
+## default cores to run in cluster, if more than 1 activate "#$ -pe smp <cores requested>", ibimed-nodes.q
+## The queue must be configured with "smp", like "pe_list     make smp"
+SGE_cores_requested=1				
 
 ### If true need human confirmation after collecting all the data
 ### Set this to false if is used in a pipeline
@@ -33,7 +36,7 @@ confirm_after_collect_data=false
 output_path=outData
 
 ### Log file, where the progression of process are going o be saved
-log_file=outData/xpto.log
+log_file=xpto.log
 
 ### if all fasta/fastq files are expecting to be paired
 ##

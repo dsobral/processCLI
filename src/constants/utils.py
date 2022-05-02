@@ -4,7 +4,7 @@ Created on Oct 23, 2016
 @author: mmp
 '''
 
-import os, random, pickle, gzip, re
+import os, random, pickle, gzip, re, getpass
 
 class Util(object):
 	'''
@@ -28,7 +28,7 @@ class Util(object):
 			return False
 		
 	def get_temp_file(self, file_name, sz_type):
-		main_path = os.path.join(self.TEMP_DIRECTORY, self.PROCESS_CLI_TEMP_DIRECTORY)
+		main_path = os.path.join(self.TEMP_DIRECTORY, getpass.getuser(), self.PROCESS_CLI_TEMP_DIRECTORY)
 		if (not os.path.exists(main_path)): os.makedirs(main_path)
 		while 1:
 			return_file = os.path.join(main_path, "process_cli_" + file_name + "_" + str(random.randrange(10000000, 99999999, 10)) + "_file" + sz_type)
@@ -104,6 +104,14 @@ class Util(object):
 	def remove_dir(self, path_name):
 		if (not path_name is None):
 			cmd = "rm -r %s*" % (path_name); os.system(cmd)
+	
+	def make_path(self, path_name):
+		if (not os.path.isdir(path_name) and not os.path.isfile(path_name)):
+			cmd = "mkdir -p " + path_name
+			os.system(cmd)
+			exist_status = os.system(cmd)
+			if (exist_status != 0):
+				raise Exception("Fail to make a path") 
 			
 	def copy_file(self, path_origin, path_destination):
 		if os.path.exists(path_origin):

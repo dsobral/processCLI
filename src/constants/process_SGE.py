@@ -63,8 +63,9 @@ class ProcessSGE(object):
 		if (not b_found): raise Exception("\n".join(vect_out))
 
 
-	def set_script_run_sge(self, out_dir, queue_name, vect_cmd, file_name_out):
+	def set_script_run_sge(self, out_dir, queue_name, sge_cores_requested, vect_cmd, file_name_out):
 		"""
+		:param sge_cores_requested cores resquested, default 1
 		create the script to run SGE
 		"""
 		if (len(vect_cmd) == 0): return None
@@ -74,6 +75,8 @@ class ProcessSGE(object):
 			handleSGE.write("#$ -V\n")	# Specifies  that  all  environment  variables active
 										# within the qsub utility be exported to the context of the job.
 			handleSGE.write("#$ -S /bin/bash\n") 	# interpreting shell
+			if sge_cores_requested > 1:
+				handleSGE.write("#$ -pe smp {}\n".format(sge_cores_requested))	# cores requested to the queue
 			handleSGE.write("#$ -j y\n")	# merge the standard error with standard output
 			handleSGE.write("#$ -cwd\n")	# execute the job for the current work directory
 			if (len(queue_name) > 0): handleSGE.write("#$ -q {}\n".format(queue_name))	# queue name

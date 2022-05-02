@@ -6,6 +6,7 @@ from config.configFile import ConfigFile
 from constants.utils import Util
 from constants.process_SGE import ProcessSGE
 
+__version__ = "3.2"
 
 class ProcessCLI(object):
 
@@ -91,17 +92,20 @@ class ProcessCLI(object):
 				print("Exit_status {}, Cmd: {}".format(exit_status, cmd))
 			
 			### for each sample
-			jobs_submitted, jobs_not_submitted = (0, 0) 
+			jobs_submitted, jobs_not_submitted = (0, 0)
+			path_save_job = os.path.join(os.getcwd(), ConfigFile.SGE_OUT_SCRIPT_DIR) 
 			for vect_cmd_to_run in self.config_file.get_vect_cmd_to_run():
 				
 				### set a sge submit
 				qsub_file = self.util.get_file_by_progress(ConfigFile.SGE_OUT_SCRIPT_DIR, "sge_to_submit", ".sh")
-				process_sge.set_script_run_sge(os.path.join(os.getcwd(), ConfigFile.SGE_OUT_SCRIPT_DIR), self.config_file.queue_name, vect_cmd_to_run, qsub_file)
+				process_sge.set_script_run_sge(path_save_job, 
+									self.config_file.queue_name, self.config_file.sge_cores_requested, 
+									vect_cmd_to_run, qsub_file)
 				try:
 					sge_id = process_sge.submitte_job(qsub_file)
 					self.config_file.write_log_finish_process("Job submitted:\n{}".format(vect_cmd_to_run))
 					
-					sz_message = "Submit job with id: {}".format(sge_id)
+					sz_message = "Submit job with id: {}   scriptJob: {}".format(sge_id, qsub_file)
 					self.config_file.write_log_single_message(sz_message)
 					print(sz_message)
 					jobs_submitted += 1
@@ -119,7 +123,8 @@ class ProcessCLI(object):
 			### write the log that everythinf is finished
 			self.config_file.write_log_finish_process("All jobs submitted")
 			
-			print("\nYou can check all your jobs running with;\n$ qstat -f\n")
+			print("\nAll SGE scripts are in {}".format(path_save_job))
+			print("You can check all your jobs running with:\n$ qstat -f\n")
 		else:	### threading...
 			### threads			
 			self.vect_manage_process = self.config_file.get_processors() * [-1]	# list to the process available
@@ -166,8 +171,12 @@ class ProcessCLI(object):
 if __name__ == '__main__':
 
 	"""
-	V3.0 release 35/0/2021
-		Add - sge option 
+	V3.2 release 28/4/2022
+		FIX - replace variables without double quote
+	V3.1 release 15/2/2022
+		Add - SGE cores requested
+	V3.0 release 3/5/2021
+		Add - SGE option 
 	V2.2 release 04/05/2018
 		Add - progress report 
 	V2.1 release 24/04/2018
@@ -186,7 +195,7 @@ if __name__ == '__main__':
 		input_config_file = "tests/files/config_temp_files.txt"
 		input_config_file = "/home/projects/pipeline_quality/config_to_run_pair.txt"
 	else:
-		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog 3.0", add_help_option=False)
+		parser = OptionParser(usage="%prog [-h] [-i]", version="%prog " + __version__, add_help_option=False)
 		parser.add_option("-i", "--input", type="string", dest="input", help="Input file with all configurations.\nPlease check the 'config.txt' files inside of 'example_config' directory ", metavar="IN_FILE")
 		parser.add_option('-h', '--help', dest='help', action='store_true', help='show this help message and exit')
 	
@@ -203,11 +212,12 @@ if __name__ == '__main__':
 			3)  TAG extension_1=  -> extensions of files to look;
 			4)  TAG extension_2=  -> extensions of files to look;
 			5)  TAG confirm_after_collect_data=  -> Set True to human confirmation after collecting all the data;
-			6)  TAG log_file=  -> log file name;
-			7)  TAG cmd=  -> commands to run, can be more than one;
-			8)  TAG expecting_all_paired_files=  -> True if 
-			9)  TAG fast_processing=  -> Set this to True if run commands fast in Threading mode;
+			6)  TAG log_file=  		-> log file name;
+			7)  TAG cmd=  			-> commands to run, can be more than one;
+			8)  TAG expecting_all_paired_files=  -> True if all fastq.gz files are paired 
+			9)  TAG fast_processing=  -> Set this to True if call commands fasted in Threading mode, decrease time between calls;
 			10) TAG queue_name=  ->Set queue name if you want to submit the commands to SGE;
+			11) TAG SGE_threads= ->Set number of cores requested for SGE, default is 1. Activate SGE tag #$ -pe smp <cores requested>"
 			
 			Variables:
 			1)	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
@@ -221,12 +231,13 @@ if __name__ == '__main__':
 			1)  FILE1					-> reads.fastq.gz/reads.fastq/reads.fasta.gz/reads.fasta
 
 			3)	PREFIX_FILES_OUT		-> reads
-			4)	OUT_FOLDER			-> outData/reads/....
+			4)	OUT_FOLDER				-> outData/reads/....
 
 			5) TEMP variables			-> you can create temporary files as you want.
 										-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
 										-> and at the end it's is going to be remove automatically.
 										-> Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c
+			6) INDEX_PROCESS			-> Number of set of pair of files/file to process
 
 			""")
 			sys.exit(0)

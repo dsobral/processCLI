@@ -30,7 +30,7 @@ confirm_after_collect_data=false
 output_path=outData
 
 ### Log file, where the progression of process are going o be saved
-log_file=outData/xpto.log
+log_file=xpto.log
 
 ### if all fasta/fastq files are expecting to be paired
 ##
