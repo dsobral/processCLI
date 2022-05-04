@@ -448,7 +448,7 @@ class ConfigFile(object):
 			for _, file_name in enumerate(self.vect_files_not_to_process):
 				print("\t" + file_name)
 				if _ >= 9: 
-					print("\t....... more '{}' files but not show. All files on log file '{}'".format(
+					print("\t....... more '{}' files but not show.\nAll files on log file '{}'".format(
 						int(self.get_len_vect_files_not_to_process()) - 10, self.log_file))
 					break
 			print("\tTotal: " + str(self.get_len_vect_files_not_to_process()))
