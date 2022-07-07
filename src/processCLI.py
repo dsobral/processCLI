@@ -6,7 +6,7 @@ from config.configFile import ConfigFile
 from constants.utils import Util
 from constants.process_SGE import ProcessSGE
 
-__version__ = "3.2"
+__version__ = "3.3"
 
 class ProcessCLI(object):
 
@@ -171,6 +171,8 @@ class ProcessCLI(object):
 if __name__ == '__main__':
 
 	"""
+	V3.3 release 28/4/2022
+		FIX - dot at the end of sample name
 	V3.2 release 28/4/2022
 		FIX - replace variables without double quote
 	V3.1 release 15/2/2022
@@ -237,7 +239,7 @@ if __name__ == '__main__':
 										-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
 										-> and at the end it's is going to be remove automatically.
 										-> Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c
-			6) INDEX_PROCESS			-> Number of set of pair of files/file to process
+			6) INDEX_PROCESS			-> Number of set of pair of files/file to process, Ordinal Order.
 
 			""")
 			sys.exit(0)

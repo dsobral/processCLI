@@ -10,6 +10,9 @@ processors=2
 ### global path where the data is going to be saved
 output_path=outData
 
+### expecting paired files 
+expecting_all_paired_files=yes
+
 ### command line with variables
 ## 		VARIABLES
 ##		1)	FILE1					-> reads_R1.fastq.gz 

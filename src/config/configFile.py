@@ -65,7 +65,8 @@ class ConfigFile(object):
 		self.vect_files_not_to_process = []
 		
 		## default extensions to look
-		self.VECT_FILE_EXTENSIONS = [".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz", ".fasta"]
+		self.VECT_FILE_EXTENSIONS = [".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz",
+					".fasta", ".fa", ".fa.gz"]
 		
 	### get several parameters
 	def get_processors(self): return self.processors
@@ -90,108 +91,106 @@ class ConfigFile(object):
 		'''
 		read the config files
 		'''
-		
 		### test file name
 		if (not os.path.exists(file_name)):
 			sys.exit("Error: config file doesn't exist '" + file_name + "'")
 		
-		handle = open(file_name)
 		index_file_to_process = 0
 		b_start_dir_file_description = False
 		vect_directories_to_look = []
-		for line in handle:
-			sz_temp = line.strip().lower()
-			if (len(sz_temp) == 0 or sz_temp[0] == '#'): continue
-
-			## processors
-			if (sz_temp.lower().find(self.CONFIG_FILE_processors.lower()) >= 0):
-				try:
-					self.processors = int(line.strip()[sz_temp.find(self.CONFIG_FILE_processors.lower()) + len(self.CONFIG_FILE_processors):].split()[0])
-				except ValueError:
-					raise ValueError("The processors must have an integer value")
-				if (self.processors < 1): self.processors = 1
-				continue
-
-			### test fast_processing has other value
-			if (sz_temp.lower().find(self.CONFIG_FILE_fast_processing.lower()) >= 0):
-				try:
-					self.fast_processing = not self.util.is_false(line.strip()[sz_temp.find(self.CONFIG_FILE_fast_processing.lower()) + len(self.CONFIG_FILE_fast_processing):].split()[0])
-				except ValueError:
-					raise ValueError("The fast_processing must have an boolean value")
-				continue
-
-			## log output file
-			if (sz_temp.lower().find(self.CONFIG_FILE_LOG.lower()) >= 0):
-				self.log_file = line.strip()[sz_temp.find(self.CONFIG_FILE_LOG.lower()) + len(self.CONFIG_FILE_LOG):].split()[0]
-				continue
-
-			## out_path
-			if (sz_temp.lower().find(self.CONFIG_FILE_output_path.lower()) >= 0):
-				self.output_path = line.strip()[sz_temp.find(self.CONFIG_FILE_output_path.lower()) + len(self.CONFIG_FILE_output_path):].split()[0]
-				continue
-			
-			## queue_name
-			if (sz_temp.lower().find(self.CONFIG_FILE_queue_name.lower()) >= 0):
-				self.queue_name = line.strip()[sz_temp.find(self.CONFIG_FILE_queue_name.lower()) + len(self.CONFIG_FILE_queue_name):].split()[0]
-				continue
-			
-			## SGE cores requested
-			if (sz_temp.lower().find(self.CONFIG_FILE_sge_cores_requested.lower()) >= 0):
-				try:
-					self.sge_cores_requested = int(line.strip()[sz_temp.find(self.CONFIG_FILE_sge_cores_requested.lower()) + len(self.CONFIG_FILE_sge_cores_requested):].split()[0])
-				except ValueError:
-					raise ValueError("The sge_cores_requested must have an integer value")
-				if (self.sge_cores_requested < 2): self.sge_cores_requested = 1
-				continue
-			
-			## extension_1
-			if (sz_temp.lower().find(self.CONFIG_FILE_extension_1.lower()) >= 0):
-				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_extension_1.lower()) + len(self.CONFIG_FILE_extension_1):]) > 0):
-					self.extension_to_look_1 = line.strip()[sz_temp.find(self.CONFIG_FILE_extension_1.lower()) + len(self.CONFIG_FILE_extension_1):].split()[0]
-				continue
-
-			## extension_2
-			if (sz_temp.lower().find(self.CONFIG_FILE_extension_2.lower()) >= 0):
-				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_extension_2.lower()) + len(self.CONFIG_FILE_extension_2):]) > 0):
-					self.extension_to_look_2 = line.strip()[sz_temp.find(self.CONFIG_FILE_extension_2.lower()) + len(self.CONFIG_FILE_extension_2):].split()[0]
-				continue
-			
-			## confirm_after_collect_data
-			if (sz_temp.lower().find(self.CONFIG_FILE_confirm_after_collect_data.lower()) >= 0):
-				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):]) > 0):
-					sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):].split()[0].lower()
-					if (self.util.is_false(sz_temp)): self.confirm_after_collect_data = False
-				continue
-			
-			## expecting_all_paired_files
-			if (sz_temp.lower().find(self.CONFIG_FILE_expecting_all_paired_files.lower()) >= 0):
-				if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):]) > 0):
-					sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):].split()[0].lower()
-					if (self.util.is_false(sz_temp)): self.expecting_all_paired_files = False
-				continue
-
-			## out_global_report
-			if (sz_temp.lower().find(self.CONFIG_FILE_cmd.lower()) == 0):
-				self.vec_cmds.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd.lower()) + len(self.CONFIG_FILE_cmd):])
-				continue
-			## out_global_report
-			if (sz_temp.lower().find(self.CONFIG_FILE_cmd_one_file.lower()) == 0):
-				self.vec_cmds_one_file.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd_one_file.lower()) + len(self.CONFIG_FILE_cmd_one_file):])
-				continue
-			## out_global_report
-			if (sz_temp.lower().find(self.CONFIG_FILE_cmd_two_files.lower()) == 0):
-				self.vec_cmds_two_files.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd_two_files.lower()) + len(self.CONFIG_FILE_cmd_two_files):])
-				continue
-
-			if (self.CONFIG_FILE_header_dir_file_name.lower().replace("\t", "").replace(" ", "") == sz_temp.lower().replace("\t", "").replace(" ", "")):
-				b_start_dir_file_description = True
-				continue
-
-			if (b_start_dir_file_description):
-				vect_directories_to_look.append(line.strip())
-				(vect_file_to_process, index_file_to_process) = self.__get_files_to_process_from_directory__(line.strip(), index_file_to_process)
-				self.vect_files_to_process.extend(vect_file_to_process)
-		handle.close()
+		with open(file_name) as handle:
+			for line in handle:
+				sz_temp = line.strip().lower()
+				if (len(sz_temp) == 0 or sz_temp[0] == '#'): continue
+	
+				## processors
+				if (sz_temp.lower().find(self.CONFIG_FILE_processors.lower()) >= 0):
+					try:
+						self.processors = int(line.strip()[sz_temp.find(self.CONFIG_FILE_processors.lower()) + len(self.CONFIG_FILE_processors):].split()[0])
+					except ValueError:
+						raise ValueError("The processors must have an integer value")
+					if (self.processors < 1): self.processors = 1
+					continue
+	
+				### test fast_processing has other value
+				if (sz_temp.lower().find(self.CONFIG_FILE_fast_processing.lower()) >= 0):
+					try:
+						self.fast_processing = not self.util.is_false(line.strip()[sz_temp.find(self.CONFIG_FILE_fast_processing.lower()) + len(self.CONFIG_FILE_fast_processing):].split()[0])
+					except ValueError:
+						raise ValueError("The fast_processing must have an boolean value")
+					continue
+	
+				## log output file
+				if (sz_temp.lower().find(self.CONFIG_FILE_LOG.lower()) >= 0):
+					self.log_file = line.strip()[sz_temp.find(self.CONFIG_FILE_LOG.lower()) + len(self.CONFIG_FILE_LOG):].split()[0]
+					continue
+	
+				## out_path
+				if (sz_temp.lower().find(self.CONFIG_FILE_output_path.lower()) >= 0):
+					self.output_path = line.strip()[sz_temp.find(self.CONFIG_FILE_output_path.lower()) + len(self.CONFIG_FILE_output_path):].split()[0]
+					continue
+				
+				## queue_name
+				if (sz_temp.lower().find(self.CONFIG_FILE_queue_name.lower()) >= 0):
+					self.queue_name = line.strip()[sz_temp.find(self.CONFIG_FILE_queue_name.lower()) + len(self.CONFIG_FILE_queue_name):].split()[0]
+					continue
+				
+				## SGE cores requested
+				if (sz_temp.lower().find(self.CONFIG_FILE_sge_cores_requested.lower()) >= 0):
+					try:
+						self.sge_cores_requested = int(line.strip()[sz_temp.find(self.CONFIG_FILE_sge_cores_requested.lower()) + len(self.CONFIG_FILE_sge_cores_requested):].split()[0])
+					except ValueError:
+						raise ValueError("The sge_cores_requested must have an integer value")
+					if (self.sge_cores_requested < 2): self.sge_cores_requested = 1
+					continue
+				
+				## extension_1
+				if (sz_temp.lower().find(self.CONFIG_FILE_extension_1.lower()) >= 0):
+					if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_extension_1.lower()) + len(self.CONFIG_FILE_extension_1):]) > 0):
+						self.extension_to_look_1 = line.strip()[sz_temp.find(self.CONFIG_FILE_extension_1.lower()) + len(self.CONFIG_FILE_extension_1):].split()[0]
+					continue
+	
+				## extension_2
+				if (sz_temp.lower().find(self.CONFIG_FILE_extension_2.lower()) >= 0):
+					if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_extension_2.lower()) + len(self.CONFIG_FILE_extension_2):]) > 0):
+						self.extension_to_look_2 = line.strip()[sz_temp.find(self.CONFIG_FILE_extension_2.lower()) + len(self.CONFIG_FILE_extension_2):].split()[0]
+					continue
+				
+				## confirm_after_collect_data
+				if (sz_temp.lower().find(self.CONFIG_FILE_confirm_after_collect_data.lower()) >= 0):
+					if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):]) > 0):
+						sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_confirm_after_collect_data.lower()) + len(self.CONFIG_FILE_confirm_after_collect_data):].split()[0].lower()
+						if (self.util.is_false(sz_temp)): self.confirm_after_collect_data = False
+					continue
+				
+				## expecting_all_paired_files
+				if (sz_temp.lower().find(self.CONFIG_FILE_expecting_all_paired_files.lower()) >= 0):
+					if (len(line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):]) > 0):
+						sz_temp = line.strip()[sz_temp.find(self.CONFIG_FILE_expecting_all_paired_files.lower()) + len(self.CONFIG_FILE_expecting_all_paired_files):].split()[0].lower()
+						if (self.util.is_false(sz_temp)): self.expecting_all_paired_files = False
+					continue
+	
+				## out_global_report
+				if (sz_temp.lower().find(self.CONFIG_FILE_cmd.lower()) == 0):
+					self.vec_cmds.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd.lower()) + len(self.CONFIG_FILE_cmd):])
+					continue
+				## out_global_report
+				if (sz_temp.lower().find(self.CONFIG_FILE_cmd_one_file.lower()) == 0):
+					self.vec_cmds_one_file.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd_one_file.lower()) + len(self.CONFIG_FILE_cmd_one_file):])
+					continue
+				## out_global_report
+				if (sz_temp.lower().find(self.CONFIG_FILE_cmd_two_files.lower()) == 0):
+					self.vec_cmds_two_files.append(line.strip()[sz_temp.find(self.CONFIG_FILE_cmd_two_files.lower()) + len(self.CONFIG_FILE_cmd_two_files):])
+					continue
+	
+				if (self.CONFIG_FILE_header_dir_file_name.lower().replace("\t", "").replace(" ", "") == sz_temp.lower().replace("\t", "").replace(" ", "")):
+					b_start_dir_file_description = True
+					continue
+	
+				if (b_start_dir_file_description):
+					vect_directories_to_look.append(line.strip())
+					(vect_file_to_process, index_file_to_process) = self.__get_files_to_process_from_directory__(line.strip(), index_file_to_process)
+					self.vect_files_to_process.extend(vect_file_to_process)
 		
 		vect_index_empty = []
 		if (not self.has_all_pair_files() and self.expecting_all_paired_files):
@@ -562,7 +561,7 @@ class FileToProcess(object):
 		'''
 		self.file1 = file1.replace('//', '/')
 		self.file2 = file2.replace('//', '/')
-		self.out_prefix = out_prefix		### clean file name
+		self.out_prefix = out_prefix[:-1] if out_prefix.endswith('.') else out_prefix ### clean file name
 		self.index_file_to_process = index_file_to_process
 		self.extension_1 = extension_1
 		self.extension_2 = extension_2
@@ -628,8 +627,16 @@ class FileToProcess(object):
 			self.file1 = self.file2
 			self.file2 = temp
 
+	def _replace_file_name(self, cmd_out, variable_name, replace_string):
+		"""
+		replace file name
+		"""
+		cmd_out = cmd_out.replace(" " + variable_name + " ", ' "' + replace_string + '" ')
+		cmd_out = cmd_out.replace(" " + variable_name, ' "' + replace_string + '"')	## could be in the end of the command line
+		return cmd_out.replace(variable_name, replace_string)	## last chance
+		
 	### get command line with replaced tags	
-	def get_command_line(self, output_path, cmd, index_to_process):
+	def get_command_line(self, output_path, cmd, index_to_process = -1):
 		
 		### create temp directories and files
 		for word in cmd.split("'"):
@@ -638,18 +645,15 @@ class FileToProcess(object):
 					if (len(self.temp_directory) == 0): self.temp_directory = self.utils.get_temp_dir()
 					self.dt_temp_files[word] = self.utils.get_temp_file_from_dir(self.temp_directory, "cmd", "")
 
-		cmd_out = cmd.replace(" " + ConfigFile.VARIABLE_NAMES_FILE1_CHANGED + " ", ' "' + self.get_file1_changed() + '" ')
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, self.get_file1_changed())
-		cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE1 + " ", ' "' + self.file1 + '" ')
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
-		if (len(self.file2) > 0): 
-			cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE2_CHANGED + " ", ' "' + self.get_file2_changed() + '" ')
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, self.get_file2_changed())
-			cmd_out = cmd_out.replace(" " + ConfigFile.VARIABLE_NAMES_FILE2 + " ", ' "' + self.file2 + '" ')
-			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
+		cmd_out = self._replace_file_name(cmd, ConfigFile.VARIABLE_NAMES_FILE1_CHANGED, self.get_file1_changed())
+		cmd_out = self._replace_file_name(cmd_out, ConfigFile.VARIABLE_NAMES_FILE1, self.file1)
+		if (len(self.file2) > 0):
+			cmd_out = self._replace_file_name(cmd_out, ConfigFile.VARIABLE_NAMES_FILE2_CHANGED, self.get_file2_changed())
+			cmd_out = self._replace_file_name(cmd_out, ConfigFile.VARIABLE_NAMES_FILE2, self.file2)
 
 		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_NAMES_PREFIX_FILES_OUT, self.out_prefix)
-		cmd_out = cmd_out.replace(ConfigFile.VARIABLE_INDEX_PROCESS, str(index_to_process))
+		if (index_to_process >= 0):
+			cmd_out = cmd_out.replace(ConfigFile.VARIABLE_INDEX_PROCESS, str(index_to_process))
 				
 		### create output path if necessary
 		if (cmd_out.find(ConfigFile.VARIABLE_NAMES_OUT_FOLDER) != -1):
