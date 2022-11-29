@@ -186,7 +186,7 @@ class Test(unittest.TestCase):
 			self._change_config_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "files/config7_fail.txt"))
 			configFile.read_file(self.temp_file)
 		except Exception as e:
-			self.assertEqual(e.args[0], "Error: the file 'Xpto3_A_L001_r2.fastq.gz' exist more than on time in the directory " +\
+			self.assertEqual(e.args[0], "Error: the file 'Xpto3_A_L001_r2.fastq.gz' exist more than on time in the directory, or in sub-directories " +\
 							"'{}/files/dir_with_files_fail'".format(WORKING_PATH_TEST))
 			return
 		self.fail("Must raise an error")
@@ -470,6 +470,20 @@ class Test(unittest.TestCase):
 			
 		self.assertEqual(configFile.has_all_pair_files(), True)
 
+	def testFile_20(self):
+		
+		configFile = ConfigFile()
+		self._change_config_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "files/config_20.txt"))
+		configFile.read_file(self.temp_file)
+		
+		self.assertTrue(configFile.get_processors() == 2)
+		self.assertTrue(configFile.get_output_path() == "outData")
+		self.assertEqual(1, len(configFile.get_vect_cmd()))
+		self.assertTrue(configFile.get_confirm_after_collect_data())
+		self.assertEqual(configFile.get_vect_cmd()[0], "bash tests/cmd/process.sh OUT_FOLDER PREFIX_FILES_OUT FILE1 FILE2")
+		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 2)
+		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_files_10/631_EX1_unpair.fastq.gz"))
+		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
 		
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testName']

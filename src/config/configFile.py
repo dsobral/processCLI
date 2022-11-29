@@ -277,7 +277,7 @@ class ConfigFile(object):
 
 			prefix_file_name = self.get_prefix_file_name(only_file_name)
 			if (prefix_file_name in dict_join_files):
-				if (self.remove_extensions_file_name(only_file_name) in dict_out_normalized_files): raise Exception("Error: the file '" + only_file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
+				if (self.remove_extensions_file_name(only_file_name) in dict_out_normalized_files): raise Exception("Error: the file '" + only_file_name + "' exist more than on time in the directory, or in sub-directories '" + dir_file_to_files + "'")
 				dict_join_files[prefix_file_name].append(file_name.replace(sz_line_to_parse, '', 1))
 				dict_out_normalized_files[self.remove_extensions_file_name(only_file_name)] = 1
 			else: 
@@ -369,7 +369,7 @@ class ConfigFile(object):
 			
 			prefix_file_name = self.remove_extensions_file_name(file_name)
 			if (prefix_file_name in dict_join_files):
-				if (prefix_file_name in dict_out_normalized_files): raise Exception("Error: the file '" + file_name + "' exist more than on time in the directory '" + dir_file_to_files + "'")
+				if (prefix_file_name in dict_out_normalized_files): raise Exception("Error: the file '" + file_name + "' exist more than on time in the directory, or in sub-directories '" + dir_file_to_files + "'")
 				dict_out_normalized_files[prefix_file_name] = 1
 			else: 
 				dict_join_files[prefix_file_name] = [file_name]
