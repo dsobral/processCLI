@@ -26,6 +26,14 @@ extension_2=_2P.fastq
 ### Set this to false if is used in a pipeline
 confirm_after_collect_data=false
 
+###################
+##
+##	The name of the sample came from the sample file name 
+##	If False only remove file extension from the file name
+##	If True remove file extension and clean something else in the file name
+##	By default it is True
+clean_file_name_to_get_sample_name=true
+
 ### global path where the data is going to be saved
 output_path=outData
 

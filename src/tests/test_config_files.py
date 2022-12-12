@@ -310,6 +310,17 @@ class Test(unittest.TestCase):
 			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_6/Xpto31_A_L001_1P.fastq"))
 			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file2().endswith("files/dir_with_files_6/Xpto31_A_L001_2P.fastq"))
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_prefix_file_out(), "Xpto31_A_L001")
+	
+	def testFile11_11(self):
+		configFile = ConfigFile()
+		self._change_config_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "files/config17.txt"))
+		configFile.read_file(self.temp_file)
+		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 0)
+		self.assertEqual(len(configFile.get_vect_files_to_process()), 3)
+		vect_prefix_out_expected = sorted(["T0_CA_R1", "T0_ITR1_R2", "T0_ITR2_R2"])
+		vect_prefix_out = sorted([configFile.get_vect_files_to_process()[_].get_prefix_file_out() for \
+					_ in range(len(configFile.get_vect_files_to_process()))])
+		self.assertEqual(vect_prefix_out_expected, vect_prefix_out)
 			
 	def testFile12_12(self):
 		configFile = ConfigFile()

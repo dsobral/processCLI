@@ -28,6 +28,14 @@ queue_name=ibimed-single.q
 ## The queue must be configured with "smp", like "pe_list     make smp"
 SGE_cores_requested=1				
 
+###################
+##
+##	The name of the sample came from the sample file name 
+##	If False only remove file extension from the file name
+##	If True remove file extension and clean something else in the file name
+##	By default it is True
+clean_file_name_to_get_sample_name=true
+
 ### If true need human confirmation after collecting all the data
 ### Set this to false if is used in a pipeline
 confirm_after_collect_data=false

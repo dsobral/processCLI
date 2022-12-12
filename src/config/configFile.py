@@ -28,6 +28,7 @@ class ConfigFile(object):
 	CONFIG_FILE_cmd_two_files= "cmd_two_files="
 	CONFIG_FILE_expecting_all_paired_files = "expecting_all_paired_files="
 	CONFIG_FILE_fast_processing = "fast_processing="	##   no wait for 
+	CONFIG_FILE_clean_file_name_to_get_sample_name = "clean_file_name_to_get_sample_name="	## clean sample file name to get the sample name
 	CONFIG_FILE_queue_name = "queue_name="				##	 If name of queue exist set all on SGE
 	CONFIG_FILE_sge_cores_requested = "SGE_cores_requested="	##	 Cores requested to run in SGE
 
@@ -58,6 +59,7 @@ class ConfigFile(object):
 		self.sge_cores_requested = 1		## Cores requested for SGE
 		self.confirm_after_collect_data = True
 		self.expecting_all_paired_files = True
+		self.clean_file_name_to_get_sample_name = True
 		self.fast_processing = False		## if the trigger to check the cmd will be fast
 											## True if the cmd are fast to run
 		self.util = Util()
@@ -128,6 +130,15 @@ class ConfigFile(object):
 				## out_path
 				if (sz_temp.lower().find(self.CONFIG_FILE_output_path.lower()) >= 0):
 					self.output_path = line.strip()[sz_temp.find(self.CONFIG_FILE_output_path.lower()) + len(self.CONFIG_FILE_output_path):].split()[0]
+					continue
+				
+				## clean_file_name_to_get_sample_name
+				if (sz_temp.lower().find(self.CONFIG_FILE_clean_file_name_to_get_sample_name.lower()) >= 0):
+					try:
+						self.clean_file_name_to_get_sample_name = not self.util.is_false(line.strip()[sz_temp.find(self.CONFIG_FILE_clean_file_name_to_get_sample_name.lower()) +\
+										len(self.CONFIG_FILE_clean_file_name_to_get_sample_name):].split()[0])
+					except ValueError:
+						raise ValueError("The clean_file_name_to_get_sample_name must have an boolean value")
 					continue
 				
 				## queue_name
@@ -214,11 +225,9 @@ class ConfigFile(object):
 				raise Exception("You have files but you have the flag '{}' yes. Please, check if you expect paired files.".format(ConfigFile.CONFIG_FILE_expecting_all_paired_files))
 			raise Exception("Must have files to process. Insert directories after the tag '{}' in the config file".format(ConfigFile.CONFIG_FILE_header_dir_file_name))
 
-		
 		## set log file on output folder
 		if (len(self.log_file) > 0):
 			self.log_file =  os.path.join(self.output_path, self.log_file)
-		
 		
 	def __test_empty_patameter__(self, sz_value, sz_error):
 		if (len(sz_value) == 0): raise Exception("Error: the value '" + sz_error + "' can't be empty")
@@ -303,6 +312,11 @@ class ConfigFile(object):
 
 
 	def get_prefix_file_name(self, file_name):
+		
+		## not clean file name to get sample name. Only remove extension from file name
+		if not self.clean_file_name_to_get_sample_name:
+			return self.remove_extensions_file_name(file_name)
+		
 		## if has only one extension only looks for one file, not the pairs
 		if (len(self.extension_to_look_1) > 0 and len(self.extension_to_look_2) == 0): return self.remove_extensions_file_name(file_name)
 		
@@ -386,8 +400,8 @@ class ConfigFile(object):
 		return (vect_files_result, index_file_to_process)
 
 	def remove_extensions_file_name(self, file_name):
-		if (len(self.extension_to_look_1) > 0 and file_name.find(self.extension_to_look_1) == len(file_name) - len(self.extension_to_look_1)): return file_name[:len(file_name) - len(self.extension_to_look_1)]
-		if (len(self.extension_to_look_2) > 0 and file_name.find(self.extension_to_look_2) == len(file_name) - len(self.extension_to_look_2)): return file_name[:len(file_name) - len(self.extension_to_look_2)]
+		if (len(self.extension_to_look_1) > 0 and file_name.endswith(self.extension_to_look_1)): return file_name[:len(file_name) - len(self.extension_to_look_1)]
+		if (len(self.extension_to_look_2) > 0 and file_name.endswith(self.extension_to_look_2)): return file_name[:len(file_name) - len(self.extension_to_look_2)]
 		if (len(self.extension_to_look_1) > 0 or len(self.extension_to_look_2) > 0): return file_name
 		
 		for to_search in self.VECT_FILE_EXTENSIONS:

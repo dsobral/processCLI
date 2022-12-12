@@ -171,6 +171,8 @@ class ProcessCLI(object):
 if __name__ == '__main__':
 
 	"""
+	V3.4 release 12/12/2022
+		Add - clean or not the file name to get the sample name
 	V3.3 release 28/4/2022
 		FIX - dot at the end of sample name
 	V3.2 release 28/4/2022
@@ -218,8 +220,9 @@ if __name__ == '__main__':
 			7)  TAG cmd=  			-> commands to run, can be more than one;
 			8)  TAG expecting_all_paired_files=  -> True if all fastq.gz files are paired 
 			9)  TAG fast_processing=  -> Set this to True if call commands fasted in Threading mode, decrease time between calls;
-			10) TAG queue_name=  ->Set queue name if you want to submit the commands to SGE;
-			11) TAG SGE_threads= ->Set number of cores requested for SGE, default is 1. Activate SGE tag #$ -pe smp <cores requested>"
+			10) TAG queue_name=  -> Set queue name if you want to submit the commands to SGE;
+			11) TAG SGE_threads= -> Set number of cores requested for SGE, default is 1. Activate SGE tag #$ -pe smp <cores requested>"
+			12) TAG clean_file_name_to_get_sample_name= -> Clean or not the file name to get the sample name"
 			
 			Variables:
 			1)	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 

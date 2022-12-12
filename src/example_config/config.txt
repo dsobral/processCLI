@@ -20,6 +20,13 @@ processors=1
 extension_1=
 extension_2=
 
+###################
+##
+##	The name of the sample came from the sample file name 
+##	If False only remove file extension from the file name
+##	If True remove file extension and clean something else in the file name 
+clean_file_name_to_get_sample_name=false
+
 
 ### If true need human confirmation after collecting all the data
 ### Set this to false if is used in a pipeline
