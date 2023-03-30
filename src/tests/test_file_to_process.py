@@ -37,6 +37,9 @@ class Test(unittest.TestCase):
 		self.assertEqual(util.get_number_file("sddsffdf_r12_.fddf"), 12)
 		self.assertEqual(util.get_number_file("A4P7D10_S69_R1_001.fastq.gz"), 1)
 		self.assertEqual(util.get_number_file("A4P7E8_S56_R2_001.fastq.gz"), 2)
+		self.assertEqual(util.get_number_file("ESRR_EQA_2023.INFL2.01_R2.fastq.gz"), 2)
+		self.assertEqual(util.get_number_file("ESRR_EQA_2023.INFL2.01_R1.fastq.gz"), 1)
+		self.assertEqual(util.get_number_file("sddsffdf.dadassd.R1.fastq.gz"), 1)
 		try:
 			self.assertEqual(util.get_number_file("sddsffdf_r2fddf"), 2)
 		except Exception as e:
@@ -49,6 +52,7 @@ class Test(unittest.TestCase):
 		config_file = ConfigFile()
 		self.assertEqual("sddsffdf", config_file.get_prefix_file_name("sddsffdf_2.fddf"))
 		self.assertEqual("sddsffdf", config_file.get_prefix_file_name("sddsffdf_L2_R1_1.fddf"))
+		self.assertEqual("sddsffdf.dadassd", config_file.get_prefix_file_name("sddsffdf.dadassd.R1.fastq.gz"))
 		self.assertEqual("sddsffdf", config_file.get_prefix_file_name("sddsffdf_r2_0.fddf"))
 		self.assertEqual("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2_xpto.fddf"))
 		self.assertEqual("sddsffdf_1", config_file.get_prefix_file_name("sddsffdf_1_2.fddf"))
@@ -56,6 +60,8 @@ class Test(unittest.TestCase):
 		self.assertEqual("sddsffdf", config_file.get_prefix_file_name("sddsffdf_r12_.fddf"))
 		self.assertEqual("sddsffdf_r12", config_file.get_prefix_file_name("sddsffdf_r12_2.fddf"))
 		self.assertEqual("A4P7D10_S69", config_file.get_prefix_file_name("A4P7D10_S69_R1_001.fastq.gz"))
+		self.assertEqual("ESRR_EQA_2023.INFL2.01", config_file.get_prefix_file_name("ESRR_EQA_2023.INFL2.01_R2.fastq.gz"))
+		self.assertEqual("ESRR_EQA_2023.INFL2.01", config_file.get_prefix_file_name("ESRR_EQA_2023.INFL2.01_R1.fastq.gz"))
 		self.assertEqual("A4P7E8_S56", config_file.get_prefix_file_name("A4P7E8_S56_R2_001.fastq.gz"))
 		
 		
