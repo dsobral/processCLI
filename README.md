@@ -39,25 +39,26 @@ Definitions that you can adjust in your configuration file:
 	
 Variables that you can set in commands `cmd`:
 
-	*	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
-	*	FILE2					-> reads_R2.fastq.gz/reads_R2.fastq/reads_R2.fasta.gz/reads_R2.fasta
+	* FILE1	 -> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
+	* FILE2	 -> reads_R2.fastq.gz/reads_R2.fastq/reads_R2.fasta.gz/reads_R2.fasta
 
-	*	FILE1_CHANGED			-> GSE96700_GSM2538511/reads_R1.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R1.fastq.gz 
-	*	FILE2_CHANGED			-> GSE96700_GSM2538511/reads_R2.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R2.fastq.gz
+	* FILE1_CHANGED -> GSE96700_GSM2538511/reads_R1.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R1.fastq.gz 
+	* FILE2_CHANGED -> GSE96700_GSM2538511/reads_R2.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R2.fastq.gz
 			OR		If not identify any _R1.<extension> in directory start looking for files ended with (fastq.gz, fastq, fasta.gz or fasta) 
 
-			1)  FILE1					-> reads.fastq.gz/reads.fastq/reads.fasta.gz/reads.fasta
+			1)  FILE1	-> reads.fastq.gz/reads.fastq/reads.fasta.gz/reads.fasta
 
-	*	PREFIX_FILES_OUT		-> create a prefix of input files, that you can use to construct the command lie;
-	*	OUT_FOLDER				-> <output_path>
+	* PREFIX_FILES_OUT -> create a prefix of input files, that you can use to construct the command lie;
+	* OUT_FOLDER -> <output_path> variable
 
-	*	TEMP variables			-> you can create temporary files as you want.
-										-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
-										-> and at the end it's is going to be remove automatically.
-										-> Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c
-	*	INDEX_PROCESS			-> Number of set of pair of files/file to process, Ordinal Order.
-	
-Examples of commands `cmd` lines:
+	* TEMP variables -> you can create temporary files as you want.
+					 only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
+					 and at the end it's is going to be remove automatically.
+					 Ex: TEMPORARY_a, TEMPORARY_b, TEMPORARY_c
+	* INDEX_PROCESS -> Number of set of pair of files/file to process, Ordinal Order.
+
+
+Examples of configuration file with several `cmd` lines:
 
 ```
 $ more my_config.txt
