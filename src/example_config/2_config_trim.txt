@@ -1,0 +1,90 @@
+
+##### IMPORTANT
+## avoid spaces in the description of the identities: 
+## like this "cmd = my commad"
+## instead use in this form "cmd=my commad"
+
+####
+
+### number of threads available to run the files
+### don't put more than the processors available in your machine
+## IMPORTANT, the command line can have threadings to, so need to limit the number of threadings here.
+processors=8
+
+#######################
+### if you want to run all in SGE enviroment set a queue name, like -ibimed-single.q-
+#queue_name=ibimed-single.q
+## default cores to run in cluster, if more than 1 activate "#$ -pe smp <cores requested>", ibimed-nodes.q
+## The queue must be configured with "smp", like "pe_list     make smp"
+#SGE_cores_requested=2
+
+#######################
+## extensions to look. It can be empty. If empty look for the regular fastq files out by illumina
+## You can put value only on "extension_1=" like ".txt". It's going to process all the files ended with ".txt" and the file names are going to appear in FILE1 variable
+## You you want to activate both variables, FILE1 and FILE2, you can put like:
+##  "extension_1=_1P.fastq" and "extension_2=_2P.fastq" 
+extension_1=.gz
+extension_2=.gz
+
+
+## If the file/s are inside a folder data/GSE96700_GSM2538511/Neocortex_Diestrus2.fa.gz
+##	the name is going to be replaced by  '<output_path>/GSE96700_GSM2538511/GSE96700_GSM2538511.fa.gz
+###  replace files names by folder name
+###  default is FALSE
+replace_file_name_by_folder_name=False
+
+
+
+### If true need human confirmation after collecting all the data
+### Set this to false if is used in a pipeline
+confirm_after_collect_data=yes
+
+
+### global path where the data is going to be saved
+output_path=2fastq_trim
+
+### if all fasta/fastq files are expecting to be paired
+##
+expecting_all_paired_files=yes
+
+###Log file, where the progression of process are going o be saved
+log_file=config_trim.log
+
+### command line with variables
+##
+##  	'cmd' can have three variations, first run cmd, then cmd_one_file and for last cmd_two_files
+##		At least one 'cmd' need to have something to run.
+##			1) cmd -> is a regular command, it's going to run with one or two 'fasta/fastq' files
+##			2) cmd_one_file -> only run when has one 'fasta/fastq' file
+##			3) cmd_two_files -> only run when has two 'fasta/fastq' files
+##
+## 		VARIABLES
+##		1)	FILE1					-> reads_R1.fastq.gz/reads_R1.fastq/reads_R1.fasta.gz/reads_R1.fasta 
+##		2)	FILE2					-> reads_R2.fastq.gz/reads_R2.fastq/reads_R2.fasta.gz/reads_R2.fasta
+##		
+
+##		1)	FILE1_CHANGED			-> GSE96700_GSM2538511/reads_R1.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R1.fastq.gz 
+##		2)	FILE2_CHANGED			-> GSE96700_GSM2538511/reads_R2.fastq.gz  ->  GSE96700_GSM2538511/GSE96700_GSM2538511_R2.fastq.gz
+
+##
+##		OR		If not identify any _R1.<extension> in directory start looking for files ended with (fastq.gz, fastq, fasta.gz or fasta)
+##
+##		1)  FILE1					-> reads.fastq.gz/reads.fastq/reads.fasta.gz/reads.fasta
+##
+##		3)	PREFIX_FILES_OUT		-> reads
+##		4)	OUT_FOLDER				-> outData/reads/....
+
+##		TEMP variables				-> you can create temporary files as you want
+##   								-> only need to start with "TEMPORARY_" word. It is going to create a file where the data is going to be saved. 
+##									-> at the end it's is going to be remove automatically
+									
+cmd=trimmomatic.sh PE -threads 8 FILE1 FILE2 OUT_FOLDER/PREFIX_FILES_OUT_1P_trim.fastq.gz OUT_FOLDER/PREFIX_FILES_OUT_1U_trim.fastq.gz OUT_FOLDER/PREFIX_FILES_OUT_2P_trim.fastq.gz OUT_FOLDER/PREFIX_FILES_OUT_2U_trim.fastq.gz ILLUMINACLIP:/usr/local/software/bioinformatics/trimmomatic/0.36/adapters/adapters.fasta:2:30:10 SLIDINGWINDOW:5:20 LEADING:3 TRAILING:3 MINLEN:50 2>> OUT_FOLDER/PREFIX_FILES_OUT_report.txt
+
+
+
+## description of several files that lie in a directory or directories
+### read all files and try to find pairs of files
+## if not find any pairs try to find only files ended with this extension (fastq.gz, fastq, fasta.gz or fasta) 
+InputDirectories
+#original_data
+rawData
