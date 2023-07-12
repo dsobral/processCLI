@@ -4,7 +4,7 @@ Created on Oct 14, 2016
 @author: mmp
 '''
 import unittest, os
-from config.configFile import ConfigFile
+from config.configFile import ConfigFile, FileToProcess
 from constants.utils import Util
 
 ### run command line
@@ -496,6 +496,23 @@ class Test(unittest.TestCase):
 		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_files_10/631_EX1_unpair.fastq.gz"))
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
 		
+	def test_get_path_equal(self):
+		
+		file1 = "test_R1.fastq.gz"
+		file2 = "test1_R2.fastq.gz"
+		out_prefix = ".gq.gz"
+		index_file_to_process = 1
+		extension_1 = ".txt"
+		extension_2 = ".txt"
+		dir_file_to_files = ""
+		file_to_process = FileToProcess(file1, file2, out_prefix, index_file_to_process, extension_1, extension_2, dir_file_to_files)
+		self.assertEqual(file_to_process.get_path_equal("/home/projects/pipeline_quality/fastqc_trim",
+				"/home/projects/pipeline_quality/original_data/xpto/zpt"),
+				"/home/projects/pipeline_quality/fastqc_trim/xpto/zpt")
+
+
+
+
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testName']
 	unittest.main()

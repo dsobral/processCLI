@@ -24,6 +24,7 @@ Definitions that you can adjust in your configuration file:
 
 	* queue_name=   -> Set queue name if you want to submit the commands to SGE, only SGE mode;
 	* SGE_threads=  -> Set number of cores requested for SGE, default is 1. Activate SGE tag #$ -pe smp <cores requested>", only SGE mode;
+	Important, if you set the "queue_name" and "SGE_threads", the variable processors are not going to be used.
 	
 	* extension_1=  -> extensions of files to look;
 	* extension_2=  -> extensions of files to look;
@@ -32,6 +33,7 @@ Definitions that you can adjust in your configuration file:
 	
 	* confirm_after_collect_data=  -> Set True to human confirmation after collecting all the data, otherwise does not stop;
 	* log_file=  	  -> log file name;
+	* expecting_all_paired_files=  -> Set True if all samples must be in pair end form;
 	
 	* cmd=  		  -> commands to run, can be more than one, you can have more than one. One per line;
 	
