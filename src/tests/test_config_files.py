@@ -209,7 +209,7 @@ class Test(unittest.TestCase):
 		configFile.read_file(self.temp_file)
 		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 1)
 		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith(
-			"files/dir_with_files_1/Xpto2_A.txt"))
+			"files/dir_with_files_1/Xpto2_A.random"))
 		self.assertTrue(configFile.get_confirm_after_collect_data())
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 4)
 		n_count = 0
@@ -228,7 +228,8 @@ class Test(unittest.TestCase):
 				self.assertEqual(files_to_process.get_file2(), "")
 			elif (files_to_process.get_prefix_file_out() == "Xpto2_A"):
 				n_count += 1
-				self.assertTrue(files_to_process.get_file1().endswith("files/dir_with_files_1/Xpto2_A.fastq.gz"))
+				#self.assertTrue(files_to_process.get_file1().endswith("files/dir_with_files_1/Xpto2_A.fastq.gz"))
+				self.assertTrue(files_to_process.get_file1().endswith("files/dir_with_files_1/Xpto2_A.txt"))
 				self.assertEqual(files_to_process.get_file2(), "")
 		self.assertEqual(n_count, 4)
 
@@ -237,12 +238,13 @@ class Test(unittest.TestCase):
 		self._change_config_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "files/config2.txt"))
 		configFile.read_file(self.temp_file)
 		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 1)
-		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_with_files_2/Xpto2_A.txt"))
+		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_with_files_2/Xpto2_A.random"))
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
 		if (configFile.get_vect_files_to_process()[1].get_prefix_file_out() == "Xpto_B"):
 			self.assertTrue(configFile.get_vect_files_to_process()[1].get_file1().endswith("files/dir_with_files_2/Xpto_B.fastq"))
 			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2(), "")
-			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.fastq.gz"))
+			#self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.fastq.gz"))
+			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.txt"))
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "")
 		else:
 			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto_B.fastq"))
@@ -255,7 +257,7 @@ class Test(unittest.TestCase):
 		self._change_config_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "files/config3.txt"))
 		configFile.read_file(self.temp_file)
 		self.assertEqual(len(configFile.get_vect_files_not_to_process()), 1)
-		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_with_files_2/Xpto2_A.txt"))
+		self.assertTrue(configFile.get_vect_files_not_to_process()[0].endswith("files/dir_with_files_2/Xpto2_A.random"))
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 2)
 		if (configFile.get_vect_files_to_process()[0].get_prefix_file_out() == "Xpto_B"):
 			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto_B.fastq"))
@@ -265,9 +267,10 @@ class Test(unittest.TestCase):
 		else:
 			self.assertTrue(configFile.get_vect_files_to_process()[1].get_file1().endswith("files/dir_with_files_2/Xpto_B.fastq"))
 			self.assertEqual(configFile.get_vect_files_to_process()[1].get_file2(), "")
-			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.fastq.gz"))
+			#self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.fastq.gz"))
+			self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_2/Xpto2_A.txt"))
 			self.assertEqual(configFile.get_vect_files_to_process()[0].get_file2(), "")
-		self.assertEqual(configFile.get_extensions_to_look(), ".fq.gz; .fq; .fastq.gz; .fastq; .fasta.gz; .fasta; .fa; .fa.gz")
+		self.assertEqual(configFile.get_extensions_to_look(), ".fq.gz; .fq; .fastq.gz; .fastq; .fasta.gz; .fasta; .fa; .fa.gz; .txt; .tsv")
 		
 	def testFile11(self):
 		configFile = ConfigFile()
@@ -287,7 +290,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(len(configFile.get_vect_files_to_process()), 1)
 		self.assertTrue(configFile.get_vect_files_to_process()[0].get_file1().endswith("files/dir_with_files_4/Xpto3_A_L001_1P.fastq"))
 		self.assertTrue(configFile.get_vect_files_to_process()[0].get_file2().endswith("files/dir_with_files_4/Xpto3_A_L001_2P.fastq"))
-		self.assertEqual(configFile.get_extensions_to_look(), ".fq.gz; .fq; .fastq.gz; .fastq; .fasta.gz; .fasta; .fa; .fa.gz")
+		self.assertEqual(configFile.get_extensions_to_look(), ".fq.gz; .fq; .fastq.gz; .fastq; .fasta.gz; .fasta; .fa; .fa.gz; .txt; .tsv")
 		
 	def testFile12_11(self):
 		configFile = ConfigFile()

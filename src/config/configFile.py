@@ -68,7 +68,7 @@ class ConfigFile(object):
 		
 		## default extensions to look
 		self.VECT_FILE_EXTENSIONS = [".fq.gz", ".fq", ".fastq.gz", ".fastq", ".fasta.gz",
-					".fasta", ".fa", ".fa.gz"]
+					".fasta", ".fa", ".fa.gz", ".txt", ".tsv"]
 		
 	### get several parameters
 	def get_processors(self): return self.processors
